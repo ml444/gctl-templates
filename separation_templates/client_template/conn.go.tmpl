@@ -45,6 +45,9 @@ func InjectConn(conn *grpc.ClientConn) {
 }
 
 func CloseConn() error {
+    if cliMgr.conn == nil {
+        return nil
+    }
     return cliMgr.conn.Close()
 }
 
