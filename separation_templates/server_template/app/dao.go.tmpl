@@ -1,0 +1,165 @@
+package app
+
+import (
+"context"
+	"github.com/ml444/gkit/dbx"
+	"github.com/ml444/gkit/listoption"
+	log "github.com/ml444/glog"
+	"gorm.io/gorm"
+
+	"{{.Options.go_package}}"
+	"{{.Options.go_package}}Server/internal/db"
+)
+
+{{$pn := .PackageName}}
+{{ $listOptionMap := .ListOptionMap }}
+func init() {
+	db.RegisterModel(
+{{ range $i, $m := .ModelList }}
+		&{{$pn}}.{{$m.Name}}{},
+{{end}}
+	)
+}
+
+{{ range $i, $m := .ModelList }}
+    {{$TModelName := TrimPrefix $m.Name "Model" }}
+    {{$cliModelName := Concat $pn "." $m.Name}}
+var db{{$TModelName}} = NewT{{$TModelName}}(db.Db())
+
+type T{{$TModelName}} struct {
+	db    *gorm.DB
+	model *{{$cliModelName}}
+}
+
+func NewT{{$TModelName}}(db *gorm.DB) *T{{$TModelName}} {
+	return &T{{$TModelName}}{
+		db:    db,
+		model: &{{$cliModelName}}{},
+	}
+}
+
+func (d *T{{$TModelName}}) newScope() *dbx.Scope {
+    if d.db == nil {
+		d.db = db.Db()
+	}
+	return dbx.NewScope(d.db, d.model)
+}
+
+func (d *T{{$TModelName}}) Create(ctx context.Context, m *{{$cliModelName}}) error {
+	return d.newScope().Create(&m)
+}
+
+func (d *T{{$TModelName}}) Update(ctx context.Context, m *{{$cliModelName}}, whereMap map[string]interface{}) error {
+	return d.newScope().Where(whereMap).Update(&m)
+}
+
+func (d *T{{$TModelName}}) DeleteById(ctx context.Context, pk uint64) error {
+	return d.newScope().Delete(&{{$cliModelName}}{}, pk)
+}
+
+func (d *T{{$TModelName}}) DeleteByWhere(ctx context.Context, whereMap map[string]interface{}) error {
+	return d.newScope().Delete(&{{$cliModelName}}{}, whereMap)
+}
+
+func (d *T{{$TModelName}}) GetOne(ctx context.Context, pk uint64) (*{{$cliModelName}}, error) {
+	var m {{$cliModelName}}
+	err := d.newScope().First(&m, pk)
+	return &m, err
+}
+{{$sModelName := ToLowerFirst $TModelName}}
+{{$reqType := Concat "List" $TModelName "Req"}}
+func (d *T{{$TModelName}}) ListWithListOption(ctx context.Context, corpId uint64, listOption *listoption.ListOption) ([]*{{$cliModelName}}, *listoption.Paginate, error) {
+	var err error
+	scope := d.newScope().Where("corp_id=?", corpId)
+	if listOption != nil {
+
+	    {{ $listReqOpt := (index $listOptionMap $reqType) }}
+	    {{ if ne $listReqOpt nil }}
+	    {{ $listOptMap := $listReqOpt.EnumFieldMap }}
+	    {{ if gt (len $listOptMap) 0 }}
+		err = listoption.NewProcessor(listOption).
+			        {{ range $listOptKey, $valueType := $listOptMap }}
+	                    {{ if eq $valueType "bool" }}
+            AddBool({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(val bool) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "string" }}
+            AddString({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(val string) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "stringList" }}
+            AddStringList({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(valList []string) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "int32" }}
+            AddInt32({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(val int32) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "int32List" }}
+            AddInt32List({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(valList []int32) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "int32Range" }}
+            AddInt32Range({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(begin, end int32) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "uint32" }}
+            AddUint32({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(val uint32) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "uint32List" }}
+            AddUint32List({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(valList []uint32) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "uint32Range" }}
+            AddUint32Range({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(begin, end uint32) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "int64" }}
+            AddInt64({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(val int64) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "int64List" }}
+            AddInt64List({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(valList []int64) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "int64Range" }}
+            AddInt64Range({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(begin, end int64) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "uint64" }}
+            AddUint64({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(val uint64) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "uint64List" }}
+            AddUint64List({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(valList []uint64) error {
+            	return nil
+            }).
+	                    {{ else if eq $valueType "uint64Range" }}
+            AddUint64Range({{$pn}}.{{$reqType}}_{{$listOptKey}}, func(begin, end uint64) error {
+            	return nil
+            }).
+	                    {{ end }}
+	                {{end}}
+
+			Process()
+		if err != nil {
+			log.Error(err.Error())
+			return nil, nil, err
+		}
+	    {{end}}
+	    {{end}}
+	}
+
+    var {{$sModelName}}List []*{{$cliModelName}}
+	var paginate *listoption.Paginate
+	paginate, err = scope.PaginateQuery(listOption, &{{$sModelName}}List )
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return nil, nil, err
+	}
+
+	return {{$sModelName}}List , paginate, nil
+}
+
+{{end}}

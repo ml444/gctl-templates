@@ -1,0 +1,20 @@
+# relative path for code generation
+target:
+  relativeDir:
+    proto:
+    - "{SERVICE_NAME}"
+    client:
+    - "{SERVICE_NAME}"
+    server:
+    - "{SERVICE_NAME}Server"
+template:
+  filesFormatSuffix: ".tmpl"
+  protoFilename: "{SERVICE_NAME}.proto.tmpl"
+  relativeDir:
+    proto:
+    - "proto_template"
+    client:
+    - "client_template"
+    server:
+    - "server_template"
+

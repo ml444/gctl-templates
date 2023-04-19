@@ -1,0 +1,23 @@
+FROM golang:1.19 AS builder
+ADD . /src
+WORKDIR /src
+# Fetch dependencies
+RUN go get -d -v
+
+
+# Build image as a truly static Go binary
+RUN CGO_ENABLED=0 GOOS=linux GOPROXY=https://goproxy.cn make build
+
+FROM scratch
+MAINTAINER loqi <loqi4650@gmail.com>
+COPY --from=builder /src/bin /app
+WORKDIR /app
+
+EXPOSE 5040
+EXPOSE 5050
+EXPOSE 5060
+ENTRYPOINT ["./{{.PackageName}}"]
+#CMD ["-conf", ""]
+
+
+

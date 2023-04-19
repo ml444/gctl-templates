@@ -1,0 +1,39 @@
+package main
+
+import (
+	log "github.com/ml444/glog"
+	"{{.Options.go_package}}Server/internal/db"
+	// "gitlab.com/spp/uuid"
+)
+
+func Init() error {
+	var err error
+
+	// init db
+	err = db.InitDB()
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
+
+    // init rpc connection
+	err = InitRpcConns()
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func InitRpcConns() error {
+	//uuidConn, err := uuid.NewXDSConn()
+	//if err != nil {
+	//	log.Error(err)
+	//	return err
+	//}
+	//uuid.InjectConn(uuidConn)
+
+	return nil
+}
+
