@@ -3,21 +3,12 @@ package main
 import (
 	log "github.com/ml444/glog"
 	"{{.Options.go_package}}Server/internal/db"
-	// "gitlab.com/spp/uuid"
 )
 
 func Defer() {
 	CloseDbConns()
-	CloseRpcConns()
 }
 
-func CloseRpcConns() {
-	// err := uuid.CloseConn()
-	// if err != nil {
-	// 	log.Error(err)
-	// 	return
-	// }
-}
 
 func CloseDbConns() {
 	err := db.CloseDB()

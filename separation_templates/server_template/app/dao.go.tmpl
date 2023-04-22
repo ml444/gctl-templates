@@ -68,9 +68,9 @@ func (d *T{{$TModelName}}) GetOne(ctx context.Context, pk uint64) (*{{$cliModelN
 }
 {{$sModelName := ToLowerFirst $TModelName}}
 {{$reqType := Concat "List" $TModelName "Req"}}
-func (d *T{{$TModelName}}) ListWithListOption(ctx context.Context, corpId uint64, listOption *listoption.ListOption) ([]*{{$cliModelName}}, *listoption.Paginate, error) {
+func (d *T{{$TModelName}}) ListWithListOption(ctx context.Context, listOption *listoption.ListOption, whereOpts interface{}) ([]*{{$cliModelName}}, *listoption.Paginate, error) {
 	var err error
-	scope := d.newScope().Where("corp_id=?", corpId)
+	scope := d.newScope().Where(whereOpts)
 	if listOption != nil {
 
 	    {{ $listReqOpt := (index $listOptionMap $reqType) }}

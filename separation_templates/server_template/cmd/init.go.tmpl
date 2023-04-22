@@ -16,24 +16,6 @@ func Init() error {
 		return err
 	}
 
-    // init rpc connection
-	err = InitRpcConns()
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
-	return nil
-}
-
-func InitRpcConns() error {
-	//uuidConn, err := uuid.NewXDSConn()
-	//if err != nil {
-	//	log.Error(err)
-	//	return err
-	//}
-	//uuid.InjectConn(uuidConn)
-
 	return nil
 }
 

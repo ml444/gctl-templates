@@ -6,8 +6,6 @@ import (
     "github.com/ml444/gkit/errorx"
 	log "github.com/ml444/glog"
 
-    "gitlab.com/spp/utils/core"
-	"gitlab.com/spp/uuid"
 	"{{.Options.go_package}}"
 )
 
@@ -28,23 +26,14 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 	var rsp {{$pn}}.{{$v.ResponseType}}
 	{{if HasPrefix $v.RequestType "Create"}}
     {{$objName := TrimPrefix $v.Name "Create"}}
-    corpId, err := core.MustCorpId(ctx)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return nil, err
-	}
-    uuidRsp, err := uuid.GetUuid(ctx, &uuid.GetUuidReq{})
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
     m := req.{{$objName}}
 	if m == nil {
 		log.Error("the req of Model is nil")
         return nil, errorx.New({{$pn}}.ErrParamRequired)
 	}
-	m.Id = uuidRsp.Id
-    m.CorpId = corpId
+
+    // do something
+
     err = db{{$objName}}.Create(ctx, m)
 	if err != nil {
 		log.Error(err)
@@ -58,14 +47,8 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 		log.Error("update request must have an Id")
 		return nil, errorx.New({{$pn}}.ErrParamRequired)
 	}
-	corpId, err := core.MustCorpId(ctx)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return nil, err
-	}
 	err = db{{$objName}}.Update(ctx, m,  map[string]interface{}{
 		"id":      m.Id,
-		"corp_id": corpId,
 	})
 	if err != nil {
 		log.Errorf("err: %v", err)
@@ -74,14 +57,8 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 	rsp.{{$objName}} = m
     {{ else if HasPrefix $v.RequestType "Delete"}}
     {{$objName := TrimPrefix $v.Name "Delete"}}
-	corpId, err := core.MustCorpId(ctx)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return nil, err
-	}
     err = db{{$objName}}.DeleteByWhere(ctx, map[string]interface{}{
         "id":      req.Id,
-        "corp_id": corpId,
     })
 	if err != nil {
 		log.Error(err)
@@ -97,12 +74,10 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
     rsp.{{$objName}} = m
     {{ else if HasPrefix $v.RequestType "List"}}
     {{$objName := TrimPrefix $v.Name "List"}}
-    corpId, err := core.MustCorpId(ctx)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return nil, err
-	}
-    list, paginate, err := db{{$objName}}.ListWithListOption(ctx, corpId, req.ListOption)
+    queryOpts := make(map[string]interface{})
+    // TODO get corpId
+
+    list, paginate, err := db{{$objName}}.ListWithListOption(ctx, req.ListOption, queryOpts)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return nil, err
