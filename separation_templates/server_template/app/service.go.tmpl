@@ -75,8 +75,7 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
     {{ else if HasPrefix $v.RequestType "List"}}
     {{$objName := TrimPrefix $v.Name "List"}}
     queryOpts := make(map[string]interface{})
-    // TODO get corpId
-
+    // do something...
     list, paginate, err := db{{$objName}}.ListWithListOption(ctx, req.ListOption, queryOpts)
 	if err != nil {
 		log.Errorf("err: %v", err)
