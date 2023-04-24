@@ -24,7 +24,7 @@ import (
 
 // Run starts a new http server, gRPC server, and a debug server with the
 // passed config and logger
-func Run(cfg config.Config) {
+func Run(cfg *config.Config) {
 	var err error
 
 	// Mechanical domain.
@@ -34,7 +34,7 @@ func Run(cfg config.Config) {
 	go internal.InterruptHandler(errCh)
 
 	// Debug pprof listener.
-    if cfg.EnablePprof {
+    if cfg.Debug {
 		go func() {
 			log.Info("transport pprof addr", cfg.PprofAddr)
 
@@ -115,11 +115,11 @@ func Run(cfg config.Config) {
 
 func main() {
 	flag.Parse()
-	cfg := config.SetConfig(config.DefaultConfig)
+	cfg := config.GetConfig()
 	errorx.RegisterError({{.PackageName}}.ErrCodeMap, {{.PackageName}}.ErrCode4StatusCodeMap)
 
     // init
-	err := Init()
+	err := Init(cfg)
 	if err != nil {
 		println(err)
 		return

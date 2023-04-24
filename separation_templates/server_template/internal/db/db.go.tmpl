@@ -1,12 +1,13 @@
 package db
 
 import (
-	log "github.com/ml444/glog"
-	// "gorm.io/driver/mysql"
-	"gorm.io/driver/sqlite"
+	"time"
+
+	"gorm.io/driver/mysql"
+	// "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"time"
+	log "github.com/ml444/glog"
 )
 
 var db *gorm.DB
@@ -15,11 +16,15 @@ var migrateModelList []interface{}
 func Db() *gorm.DB {
 	return db
 }
-func InitDB() error {
+func InitDB(dsn string, debug bool) error {
 	var err error
 	//dsn := "user:pass@tcp(127.0.0.1:3306)/{{.PackageName}}?charset=utf8mb4&parseTime=True&loc=Local"
-	//db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	db, err = gorm.Open(sqlite.Open("{{.PackageName}}.db"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	//db, err = gorm.Open(sqlite.Open("{{.PackageName}}.db"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	if debug {
+        db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+    } else {
+        db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+    }
 	if err != nil {
 		log.Error(err)
 		return err

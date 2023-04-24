@@ -2,15 +2,16 @@ package main
 
 import (
 	log "github.com/ml444/glog"
+	"{{.Options.go_package}}Server/config"
 	"{{.Options.go_package}}Server/internal/db"
 	// "gitlab.com/spp/uuid"
 )
 
-func Init() error {
+func Init(cfg *config.Config) error {
 	var err error
 
 	// init db
-	err = db.InitDB()
+	err = db.InitDB(cfg.DbDSN, cfg.Debug)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err

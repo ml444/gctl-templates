@@ -33,6 +33,12 @@ spec:
         - containerPort: 5060
         securityContext:
           runAsUser: 1000
+        env:
+          - name: SERVICE_DB_DSN
+            valueFrom:
+              configMapKeyRef:
+                name: service-configmap
+                key: BASE_SERVICE_DB_DSN
         #volumeMounts:
         #- name: my-secret
           #mountPath: "/etc/my-secrets"
