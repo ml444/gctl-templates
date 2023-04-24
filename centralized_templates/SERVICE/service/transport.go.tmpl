@@ -1,0 +1,35 @@
+package app
+
+import (
+	"net/http"
+	"github.com/gorilla/mux"
+	"github.com/ml444/gkit/transport"
+	log "github.com/ml444/glog"
+	"google.golang.org/grpc/xds"
+	"{{.Options.go_package}}"
+)
+
+{{$pn := .PackageName}}
+
+func MakeHTTPHandler() http.Handler {
+	router := mux.NewRouter()
+{{ range $i, $svc := .ServiceList }}
+	err := transport.ParseService2HTTP(
+        New{{SnakeToCamel $svc.ServiceName}}Service(), 
+        router, 
+        transport.SetTimeoutMap(nil), 
+        transport.SetJwtSecret(nil),
+        transport.SetJwtHook(nil),
+    )
+    if err != nil {
+		log.Errorf("err: %v", err)
+	}
+{{end}}
+	return router
+}
+
+func RegisterServerToGRPC(s *xds.GRPCServer) {
+{{ range $i, $svc := .ServiceList }}
+	{{$pn}}.Register{{SnakeToCamel $svc.ServiceName}}Server(s, New{{SnakeToCamel $svc.ServiceName}}Service())
+{{end}}
+}

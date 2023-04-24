@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.PackageName}}-v1
+  labels:
+    app: {{.PackageName}} 
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.PackageName}} 
+      version: v1
+  template:
+    metadata:
+      annotations:
+        inject.istio.io/templates: grpc-agent
+        proxy.istio.io/config: '{"holdApplicationUntilProxyStarts": true}'
+      labels:
+        app: {{.PackageName}} 
+        version: v1
+    spec:
+      serviceAccountName: {{.PackageName}}-sa
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: {{.PackageName}} 
+        image: 192.168.64.7:5000/spp/{{.PackageName}}:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5040
+        - containerPort: 5050
+        - containerPort: 5060
+        securityContext:
+          runAsUser: 1000
+        env:
+          - name: SERVICE_DB_DSN
+            valueFrom:
+              configMapKeyRef:
+                name: service-configmap
+                key: BASE_SERVICE_DB_DSN
+        #volumeMounts:
+        #- name: my-secret
+          #mountPath: "/etc/my-secrets"
+          #readOnly: true
+      #volumes:
+      #- name: my-secret
+        #secret:
+          #secretName: my-secret

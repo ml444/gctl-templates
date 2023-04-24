@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.PackageName}}
+  labels:
+    app: {{.PackageName}}
+    service: {{.PackageName}}
+spec:
+  selector:
+    app: {{.PackageName}}
+  ports:
+    - name: http
+      port: 5050
+      targetPort: 5050
+    - name: grpc
+      port: 5040
+      targetPort: 5040
+    - name: debug
+      port: 5060
+      targetPort: 5060
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{.PackageName}}-sa
+automountServiceAccountToken: false
+

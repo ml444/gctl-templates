@@ -1,0 +1,92 @@
+package app
+
+import (
+	"context"
+
+    "github.com/ml444/gkit/errorx"
+	log "github.com/ml444/glog"
+
+	"{{.Options.go_package}}"
+)
+
+{{$pn := .PackageName}}
+{{ $listOptionMap := .ListOptionMap }}
+{{ range $i, $svc := .ServiceList }}
+{{$sn := SnakeToCamel $svc.ServiceName}}
+type {{$sn}}Service struct {
+	{{$pn}}.Unsafe{{$sn}}Server
+}
+
+func New{{$sn}}Service() {{$sn}}Service {
+	return {{$sn}}Service{}
+}
+
+{{ range $j, $v := $svc.RpcList }}
+func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.RequestType}}) (*{{$pn}}.{{$v.ResponseType}}, error) {
+	var rsp {{$pn}}.{{$v.ResponseType}}
+	{{if HasPrefix $v.RequestType "Create"}}
+    {{$objName := TrimPrefix $v.Name "Create"}}
+    m := req.{{$objName}}
+	if m == nil {
+		log.Error("the req of Model is nil")
+        return nil, errorx.New({{$pn}}.ErrParamRequired)
+	}
+
+    // do something
+
+    err = db{{$objName}}.Create(ctx, m)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+    rsp.{{$objName}} = m
+    {{ else if HasPrefix $v.RequestType "Update"}}
+    {{$objName := TrimPrefix $v.Name "Update"}}
+    m := req.{{$objName}}
+	if m == nil || m.Id == 0 {
+		log.Error("update request must have an Id")
+		return nil, errorx.New({{$pn}}.ErrParamRequired)
+	}
+	err = db{{$objName}}.Update(ctx, m,  map[string]interface{}{
+		"id":      m.Id,
+	})
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return nil, err
+	}
+	rsp.{{$objName}} = m
+    {{ else if HasPrefix $v.RequestType "Delete"}}
+    {{$objName := TrimPrefix $v.Name "Delete"}}
+    err = db{{$objName}}.DeleteByWhere(ctx, map[string]interface{}{
+        "id":      req.Id,
+    })
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+    {{ else if HasPrefix $v.RequestType "Get"}}
+    {{$objName := TrimPrefix $v.Name "Get"}}
+    m, err := db{{$objName}}.GetOne(ctx, req.Id)
+	if err != nil {
+		log.Error(err)
+        return nil, errorx.New({{$pn}}.ErrNotFound{{$objName}})
+	}
+    rsp.{{$objName}} = m
+    {{ else if HasPrefix $v.RequestType "List"}}
+    {{$objName := TrimPrefix $v.Name "List"}}
+    queryOpts := make(map[string]interface{})
+    // do something...
+    list, paginate, err := db{{$objName}}.ListWithListOption(ctx, req.ListOption, queryOpts)
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return nil, err
+	}
+	rsp.Paginate = paginate
+	rsp.List = list
+    {{end}}
+	return &rsp, nil
+}
+{{ end }}
+
+{{ end }}
+

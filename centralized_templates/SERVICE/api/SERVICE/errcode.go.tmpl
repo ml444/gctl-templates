@@ -1,0 +1,33 @@
+package {{.PackageName}}
+
+{{ if gt (len .ErrCodeList) 0 }}
+const (
+{{- range $i, $e := .ErrCodeList -}}
+    {{ range $i, $v := $e.EnumFieldList }}
+        {{ $v.Name }} int32	=	{{ $v.Integer }}
+    {{- end -}}
+{{ end }}
+)
+{{ end }}
+
+var ErrCodeMap = map[int32]string{
+{{- range $i, $e := .ErrCodeList -}}
+    {{ range $i, $v := $e.EnumFieldList }}
+        {{- if $v.InlineComment }}
+        {{ $v.Name }}: "{{ TrimSpace $v.InlineComment.Message }}",
+        {{- else }}
+        {{ $v.Name }}: "{{ $v.Name }}",
+        {{- end -}}
+    {{- end -}}
+{{- end }}
+}
+
+var ErrCode4StatusCodeMap = map[int32]int32{
+{{- range $i, $e := .ErrCodeList -}}
+    {{ range $i, $v := $e.EnumFieldList }}
+        {{- if and $v.Comment (Contains $v.Comment.Message "@status_code:") }}
+        {{ $v.Name }}: {{ GetStatusCodeFromComment $v.Comment.Message }},
+        {{- end -}}
+    {{- end -}}
+{{- end }}
+}
