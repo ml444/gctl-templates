@@ -10,7 +10,7 @@ import (
 
 const (
 	EnvKeyDebug        = "SERVICE_DEBUG"
-	EnvKeyServiceDbDSN = "SERVICE_DB_DSN"
+	EnvKeyServiceDbURI = "SERVICE_DB_URI"
 )
 
 // Config contains the fields for running a server
@@ -22,7 +22,7 @@ type Config struct {
 	PprofAddr   string
 	GRPCAddr    string
 
-	DbDSN       string
+	DbURI       string
 }
 
 var DefaultConfig Config
@@ -70,10 +70,10 @@ func init() {
 	if addr := os.Getenv("GRPC_ADDR"); addr != "" {
 		DefaultConfig.GRPCAddr = addr
 	}
-	if DefaultConfig.DbDSN == "" {
-        DefaultConfig.DbDSN = os.Getenv(EnvServiceDbDSN)
+	if DefaultConfig.DbURI == "" {
+        DefaultConfig.DbURI = os.Getenv(EnvServiceDbURI)
         if DefaultConfig.Debug {
-            log.Info("DB:", DefaultConfig.DbDSN)
+            log.Info("DB:", DefaultConfig.DbURI)
         }
     }
 }

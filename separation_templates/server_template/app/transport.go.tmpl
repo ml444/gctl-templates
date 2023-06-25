@@ -18,7 +18,6 @@ func MakeHTTPHandler() http.Handler {
         New{{SnakeToCamel $svc.ServiceName}}Service(), 
         router, 
         transport.SetTimeoutMap(nil), 
-        transport.SetJwtSecret(nil),
         transport.SetJwtHook(nil),
     )
     if err != nil {

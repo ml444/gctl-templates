@@ -23,34 +23,38 @@ enum ErrCode {
     //@status_code: 400
     ErrParamRequired = {{Add .StartErrCode 1}};      // 缺失参数
     //@status_code: 404
-    ErrNotFound{{.CaseServiceName}} = {{Add .StartErrCode 2}};       // 未找到相关企业
+    ErrNotFound{{.CaseServiceName}} = {{Add .StartErrCode 2}};       // 未找到相关记录
 }
+
+// GORM USAGE: 
+// @gorm: type:json;index:idx_ct_xx,priority:1;comment:'xxxx'
+// @gorm: type:varchar(255);uniqueIndex:uidx_phone,sort:desc;comment:'phone number'
 
 message Model{{.CaseServiceName}} {
     // @gorm: primarykey
     uint64 id = 1;
-    uint64 corp_id = 2;
-    // @gorm: comment:'创建时间'
-    uint32 created_at = 3;
-    // @gorm: comment:'更新时间'
-    uint32 updated_at = 4;
-    // @gorm: comment:'删除时间'
-    uint32 deleted_at = 5;
     // @gorm: comment:'企业ID'
+    uint64 corp_id = 102;
+    // @gorm: comment:'创建时间'
+    uint32 created_at = 103;
+    // @gorm: comment:'更新时间'
+    uint32 updated_at = 104;
+    // @gorm: comment:'删除时间'
+    uint32 deleted_at = 105;
 }
 
 message Create{{.CaseServiceName}}Req {
-    Model{{.CaseServiceName}} {{.ServiceName}} = 1 [(validate.rules).message.required = true];
+    Model{{.CaseServiceName}} data = 1 [(validate.rules).message.required = true];
 }
 message Create{{.CaseServiceName}}Rsp {
-    Model{{.CaseServiceName}} {{.ServiceName}} = 1;
+    Model{{.CaseServiceName}} data = 1;
 }
 
 message Update{{.CaseServiceName}}Req {
-    Model{{.CaseServiceName}} {{.ServiceName}} = 1 [(validate.rules).message.required = true];
+    Model{{.CaseServiceName}} data = 1 [(validate.rules).message.required = true];
 }
 message Update{{.CaseServiceName}}Rsp {
-    Model{{.CaseServiceName}} {{.ServiceName}} = 1;
+    Model{{.CaseServiceName}} data = 1;
 }
 
 message Delete{{.CaseServiceName}}Req {
@@ -62,7 +66,7 @@ message Get{{.CaseServiceName}}Req {
     uint64 id = 1 [(validate.rules).uint64.gt = 0];
 }
 message Get{{.CaseServiceName}}Rsp {
-    Model{{.CaseServiceName}} {{.ServiceName}} = 1;
+    Model{{.CaseServiceName}} data = 1;
 }
 
 message List{{.CaseServiceName}}Req {

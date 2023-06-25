@@ -1,13 +1,23 @@
 package main
 
 import (
+	gkitlog "git.csautodriver.com/base/gkit/log"
 	log "github.com/ml444/glog"
+	logconf "github.com/ml444/glog/config"
+	level "github.com/ml444/glog/level"
+	"{{.Options.go_package}}Server/config"
 	"{{.Options.go_package}}Server/internal/db"
-	// "gitlab.com/spp/uuid"
 )
 
 func Init(cfg *config.Config) error {
 	var err error
+
+	// setting logger
+	err = InitLogger(cfg.EnableDebug)
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
 
 	// init db
 	err = db.InitDB(cfg.DbDSN, cfg.Debug)
@@ -19,3 +29,22 @@ func Init(cfg *config.Config) error {
 	return nil
 }
 
+func InitLogger(debug bool) error {
+	err := log.InitLog(
+		logconf.SetLoggerName({{.Options.go_package}}.ClientName),
+		logconf.SetLevel2Logger(level.InfoLevel),
+	)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+	if debug {
+		err = log.InitLog(logconf.SetLevel2Logger(level.DebugLevel))
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return err
+		}
+	}
+	gkitlog.SetLogger(log.GetLogger())
+	return err
+}

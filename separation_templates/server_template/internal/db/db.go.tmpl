@@ -16,14 +16,15 @@ var migrateModelList []interface{}
 func Db() *gorm.DB {
 	return db
 }
-func InitDB(dsn string, debug bool) error {
+func InitDB(uri string, debug bool) error {
 	var err error
-	//dsn := "user:pass@tcp(127.0.0.1:3306)/{{.PackageName}}?charset=utf8mb4&parseTime=True&loc=Local"
-	//db, err = gorm.Open(sqlite.Open("{{.PackageName}}.db"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
-	if debug {
-        db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	//uri := "user:pass@tcp(127.0.0.1:3306)/{{.PackageName}}?charset=utf8mb4&parseTime=True&loc=Local"
+	if uri == "" {
+	    db, err = gorm.Open(sqlite.Open("{{.PackageName}}.db"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	} else if debug {
+        db, err = gorm.Open(mysql.Open(uri), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
     } else {
-        db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+        db, err = gorm.Open(mysql.Open(uri), &gorm.Config{})
     }
 	if err != nil {
 		log.Error(err)

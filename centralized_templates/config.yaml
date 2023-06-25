@@ -1,25 +1,26 @@
-target-relative-dir:   # relative path for code generation
-  proto:
-  - "{SERVICE_NAME}"
-  - "api"
-  - "{SERVICE_NAME}"
-  client:
-  - "{SERVICE_NAME}"
-  - "api"
-  - "{SERVICE_NAME}"
-  server:
-  - "{SERVICE_NAME}"
-template-relative-dir:   # relative path for template
-  proto:
-  - "SERVICE"
-  - "api"
-  - "SERVICE"
-  client:
-  - "SERVICE"
-  - "api"
-  - "SERVICE"
-  server:
-  - "SERVICE"
+target:
+  relativeDir:   # relative path for code generation
+    proto:
+    - "{SERVICE_NAME}"
+    - "api"
+    - "{SERVICE_NAME}"
+    client:
+    - "{SERVICE_NAME}"
+    - "api"
+    - "{SERVICE_NAME}"
+    server:
+    - "{SERVICE_NAME}"
+template:
+  filesFormatSuffix: ".tmpl"
+  protoFilename: "{SERVICE_NAME}.proto.tmpl"
+  relativeDir:   # relative path for template
+    proto:
+    - "proto_template"
+    client:
+    - "SERVICE"
+    - "api"
+    - "SERVICE"
+    server:
+    - "SERVICE"
 
-template-proto-filename: "{SERVICE_NAME}.proto.tmpl"
 

@@ -1,11 +1,62 @@
 package {{.PackageName}}
 
 import (
-    "errors"
+	"errors"
+	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
+
+
+	log "github.com/ml444/glog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	xdscreds "google.golang.org/grpc/credentials/xds"
 )
+
+const EnvKeyAutoInjectConn = "AUTO_INJECT_CLIENT_CONN"
+const EnvKey{{ToUpperFirst .PackageName}}DNS = "SERVICE_{{ToUpper .PackageName}}_DNS"
+
+var dns string
+
+func init() {
+	var err error
+
+	dns = os.Getenv(EnvKey{{ToUpperFirst .PackageName}}DNS)
+	if dsn == "" {
+		dns = "{{.PackageName}}.default.svc.cluster.local:5040"
+		//dns = "xds:///uuid.default.svc.cluster.local:5040"
+	}
+
+	var isAutoInject bool
+	autoInjectStr := os.Getenv(EnvKeyAutoInjectConn)
+	if autoInjectStr != "" {
+		isAutoInject, err = strconv.ParseBool(autoInjectStr)
+		if err != nil {
+			log.Errorf("err: %v", err)
+			return
+		}
+	}
+	if isAutoInject {
+		log.Infof("auto inject %s client conn", ClientName)
+		conn, err := NewXDSConn()
+		if err != nil {
+			log.Fatal(err.Error())
+			return
+		}
+		InjectConn(conn)
+        go func() {
+            signalCh := make(chan os.Signal, 1)
+            signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM, os.Kill)
+
+            <-signalCh
+			log.Warnf("exit: close %s client connect", ClientName)
+            if err = conn.Close(); err != nil {
+                log.Error(err.Error())
+            }
+        }()
+	}
+}
 
 // NewXDSConn new a connection of xDs
 // Note: call `conn.Close()` when the server exits
@@ -18,10 +69,7 @@ func NewXDSConn() (*grpc.ClientConn, error) {
 	if err != nil {
 		return nil, err
 	}
-	conn, err = grpc.Dial(
-    "xds:///{{.PackageName}}:5040",
-		grpc.WithTransportCredentials(creds),
-	)
+	conn, err = grpc.Dial(dns,grpc.WithTransportCredentials(creds))
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +93,6 @@ func InjectConn(conn *grpc.ClientConn) {
 }
 
 func CloseConn() error {
-    if cliMgr.conn == nil {
-        return nil
-    }
     return cliMgr.conn.Close()
 }
 

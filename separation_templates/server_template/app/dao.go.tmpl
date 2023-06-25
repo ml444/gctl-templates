@@ -17,7 +17,7 @@ func init() {
 	db.RegisterModel(
 {{- range $i, $m := .ModelList -}}
 		&{{$pn}}.{{$m.Name}}{},
-{{-end-}}
+{{- end -}}
 	)
 }
 
@@ -42,7 +42,7 @@ func (d *T{{$TModelName}}) newScope() *dbx.Scope {
     if d.db == nil {
 		d.db = db.Db()
 	}
-	return dbx.NewScope(d.db, d.model)
+	return dbx.NewScope(d.db, &{{$cliModelName}}{})
 }
 
 func (d *T{{$TModelName}}) Create(ctx context.Context, m *{{$cliModelName}}) error {
@@ -63,7 +63,7 @@ func (d *T{{$TModelName}}) DeleteByWhere(ctx context.Context, whereMap map[strin
 
 func (d *T{{$TModelName}}) GetOne(ctx context.Context, pk uint64) (*{{$cliModelName}}, error) {
 	var m {{$cliModelName}}
-	err := d.newScope().First(&m, pk)
+	err := d.newScope().SetNotFoundErr({{$pn}}.ErrNotFound{{$TModelName}}).First(&m, pk)
 	return &m, err
 }
 {{$sModelName := ToLowerFirst $TModelName}}

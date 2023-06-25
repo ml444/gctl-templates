@@ -4,6 +4,8 @@ import (
 	"context"
 )
 
+const ClientName = "{{.PackageName}}"
+const ModuleCode uint32 = {{.ModuleId}}
 
 {{ range $i, $svc := .ServiceList }}
 {{ range $j, $v := $svc.RpcList }}
