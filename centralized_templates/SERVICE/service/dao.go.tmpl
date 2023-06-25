@@ -7,8 +7,8 @@ import (
 	log "github.com/ml444/glog"
 	"gorm.io/gorm"
 
-	"{{.Options.go_package}}"
-	"{{.Options.go_package}}Server/internal/db"
+	"{{ .ModulePrefix }}/{{ .PackageName }}Server/{{.PackageName}}"
+	"{{ .ModulePrefix }}/{{ .PackageName }}Server/internal/db"
 )
 
 {{$pn := .PackageName}}

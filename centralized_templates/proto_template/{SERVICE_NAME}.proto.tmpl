@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package {{ .PackageName }};
 
-option go_package = "{{ .ModulePrefix }}/{{ .ServiceName }}";
+option go_package = "{{ .ModulePrefix }}/{{ .ServiceName }}Server/{{ .PackageName }}";
 
 import "validate/validate.proto";
 import "listoption/listoption.proto";

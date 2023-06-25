@@ -1,15 +1,13 @@
 target:
   relativeDir:   # relative path for code generation
     proto:
-    - "{SERVICE_NAME}"
+    - "{SERVICE_NAME}Server"
     - "api"
-    - "{SERVICE_NAME}"
     client:
-    - "{SERVICE_NAME}"
-    - "api"
+    - "{SERVICE_NAME}Server"
     - "{SERVICE_NAME}"
     server:
-    - "{SERVICE_NAME}"
+    - "{SERVICE_NAME}Server"
 template:
   filesFormatSuffix: ".tmpl"
   protoFilename: "{SERVICE_NAME}.proto.tmpl"
@@ -17,9 +15,7 @@ template:
     proto:
     - "proto_template"
     client:
-    - "SERVICE"
-    - "api"
-    - "SERVICE"
+    - "client_template"
     server:
     - "SERVICE"
 

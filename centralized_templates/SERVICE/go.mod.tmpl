@@ -1,4 +1,4 @@
-module {{ TrimPrefix .Options.go_package "./" }}Server
+module {{ .ModulePrefix }}/{{ .PackageName }}Server
 
 go {{ .GoVersion }}
 
