@@ -5,6 +5,7 @@ target:
     - "api"
     client:
     - "{SERVICE_NAME}Server"
+    - "pkg"
     - "{SERVICE_NAME}"
     server:
     - "{SERVICE_NAME}Server"
@@ -13,9 +14,14 @@ template:
   protoFilename: "{SERVICE_NAME}.proto.tmpl"
   relativeDir:   # relative path for template
     proto:
-    - "proto_template"
+      - "SERVICE"
+      - "api"
+#    - "proto_template"
     client:
-    - "client_template"
+      - "SERVICE"
+      - "pkg"
+      - "{SERVICE_NAME}"
+#    - "client_template"
     server:
     - "SERVICE"
 

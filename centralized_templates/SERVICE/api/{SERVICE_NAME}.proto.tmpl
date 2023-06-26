@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package {{ .PackageName }};
 
-option go_package = "{{ .ModulePrefix }}/{{ .PackageName }}";
+option go_package = "{{ .ModulePrefix }}/{{ .PackageName }}Server/pkg/{{ .PackageName }}";
 
 import "validate/validate.proto";
 import "listoption/listoption.proto";
@@ -23,7 +23,7 @@ enum ErrCode {
     //@status_code: 400
     ErrParamRequired = {{Add .StartErrCode 1}};      // 缺失参数
     //@status_code: 404
-    ErrNotFound{{ $caseServiceName }} = {{Add .StartErrCode 2}};       // 未找到相关记录
+    ErrNotFound{{$caseServiceName}} = {{Add .StartErrCode 2}};       // 未找到相关记录
 }
 
 // GORM USAGE: 

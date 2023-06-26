@@ -3,7 +3,7 @@ package app
 import (
 	"net/http"
 	"github.com/gorilla/mux"
-	"github.com/ml444/gkit/transport"
+	"github.com/ml444/gkit/transport/httpx"
 	log "github.com/ml444/glog"
 	"google.golang.org/grpc/xds"
 	"{{.Options.go_package}}"
@@ -14,11 +14,11 @@ import (
 func MakeHTTPHandler() http.Handler {
 	router := mux.NewRouter()
 {{ range $i, $svc := .ServiceList }}
-	err := transport.ParseService2HTTP(
+	err := httpx.ParseService2HTTP(
         New{{SnakeToCamel $svc.ServiceName}}Service(), 
         router, 
-        transport.SetTimeoutMap(nil), 
-        transport.SetJwtHook(nil),
+        httpx.SetTimeoutMap(nil), 
+        httpx.SetJwtHook(nil),
     )
     if err != nil {
 		log.Errorf("err: %v", err)
