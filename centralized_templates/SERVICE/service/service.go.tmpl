@@ -23,10 +23,11 @@ func New{{$sn}}Service() {{$sn}}Service {
 
 {{ range $j, $v := $svc.RpcList }}
 func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.RequestType}}) (*{{$pn}}.{{$v.ResponseType}}, error) {
+    var err error
 	var rsp {{$pn}}.{{$v.ResponseType}}
 	{{if HasPrefix $v.RequestType "Create"}}
     {{$objName := TrimPrefix $v.Name "Create"}}
-    m := req.{{$objName}}
+    m := req.Data
 	if m == nil {
 		log.Error("the req of Model is nil")
         return nil, errorx.New({{$pn}}.ErrParamRequired)
@@ -39,10 +40,10 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 		log.Error(err)
 		return nil, err
 	}
-    rsp.{{$objName}} = m
+    rsp.Data = m
     {{ else if HasPrefix $v.RequestType "Update"}}
     {{$objName := TrimPrefix $v.Name "Update"}}
-    m := req.{{$objName}}
+    m := req.Data
 	if m == nil || m.Id == 0 {
 		log.Error("update request must have an Id")
 		return nil, errorx.New({{$pn}}.ErrParamRequired)
@@ -54,7 +55,7 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 		log.Errorf("err: %v", err)
 		return nil, err
 	}
-	rsp.{{$objName}} = m
+	rsp.Data = m
     {{ else if HasPrefix $v.RequestType "Delete"}}
     {{$objName := TrimPrefix $v.Name "Delete"}}
     err = db{{$objName}}.DeleteByWhere(ctx, map[string]interface{}{
@@ -71,7 +72,7 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 		log.Error(err)
         return nil, errorx.New({{$pn}}.ErrNotFound{{$objName}})
 	}
-    rsp.{{$objName}} = m
+    rsp.Data = m
     {{ else if HasPrefix $v.RequestType "List"}}
     {{$objName := TrimPrefix $v.Name "List"}}
     queryOpts := make(map[string]interface{})
