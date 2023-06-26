@@ -18,8 +18,6 @@ func MakeHTTPHandler() http.Handler {
         New{{SnakeToCamel $svc.ServiceName}}Service(), 
         router, 
         httpx.SetTimeoutMap(nil), 
-        httpx.SetJwtSecret(nil),
-        httpx.SetJwtHook(nil),
     )
     if err != nil {
 		log.Errorf("err: %v", err)
