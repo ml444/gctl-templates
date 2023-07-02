@@ -29,7 +29,7 @@ func NewXDSConn() (*grpc.ClientConn, error) {
 	return conn, nil
 }
 {{$svc := index .ServiceList 0}}
-{{$sn := SnakeToCamel $svc.ServiceName}}
+{{$sn := ToCamelCase $svc.ServiceName}}
 type CliManager struct {
 	conn    *grpc.ClientConn
     cli     {{$sn}}Client

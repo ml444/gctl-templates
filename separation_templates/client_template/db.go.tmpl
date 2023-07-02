@@ -4,6 +4,6 @@ package {{.PackageName}}
 {{- range $i, $m := .ModelList -}}
 {{$TModelName := TrimPrefix $m.Name "Model" }}
 func (m *{{$m.Name}}) TableName() string {
-	return "{{$pn}}_{{CamelToSnake $TModelName}}"
+	return "{{$pn}}_{{ToSnakeCase $TModelName}}"
 }
 {{- end -}}

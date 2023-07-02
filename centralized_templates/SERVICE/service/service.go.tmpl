@@ -12,7 +12,7 @@ import (
 {{$pn := .PackageName}}
 {{ $listOptionMap := .ListOptionMap }}
 {{ range $i, $svc := .ServiceList }}
-{{$sn := SnakeToCamel $svc.ServiceName}}
+{{$sn := ToCamelCase $svc.ServiceName}}
 type {{$sn}}Service struct {
 	{{$pn}}.Unsafe{{$sn}}Server
 }

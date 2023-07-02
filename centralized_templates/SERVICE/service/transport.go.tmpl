@@ -15,7 +15,7 @@ func MakeHTTPHandler() http.Handler {
 	router := mux.NewRouter()
 {{ range $i, $svc := .ServiceList }}
 	err := httpx.ParseService2HTTP(
-        New{{SnakeToCamel $svc.ServiceName}}Service(), 
+        New{{ToCamelCase $svc.ServiceName}}Service(),
         router, 
         httpx.SetTimeoutMap(nil), 
     )
@@ -28,6 +28,6 @@ func MakeHTTPHandler() http.Handler {
 
 func RegisterServerToGRPC(s *xds.GRPCServer) {
 {{ range $i, $svc := .ServiceList }}
-	{{$pn}}.Register{{SnakeToCamel $svc.ServiceName}}Server(s, New{{SnakeToCamel $svc.ServiceName}}Service())
+	{{$pn}}.Register{{ToCamelCase $svc.ServiceName}}Server(s, New{{ToCamelCase $svc.ServiceName}}Service())
 {{end}}
 }
