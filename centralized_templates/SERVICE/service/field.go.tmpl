@@ -1,0 +1,15 @@
+package app
+
+// struct field
+const (
+{{- range $i, $field := .ModelFieldList }}
+	Field{{$field | ToCamelCase}} = "{{$field | ToCamelCase}}"
+{{- end }}
+)
+
+// db field
+const (
+{{- range $i, $field := .ModelFieldList }}
+	db{{$field | ToCamelCase}} = "{{$field}}"
+{{- end }}
+)
