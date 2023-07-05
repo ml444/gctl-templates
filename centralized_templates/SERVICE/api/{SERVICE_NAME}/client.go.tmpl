@@ -4,6 +4,7 @@ import (
 	"context"
 )
 
+const ClientName = "{{.PackageName}}"
 
 {{ range $i, $svc := .ServiceList }}
 {{ range $j, $v := $svc.RpcList }}
