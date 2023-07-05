@@ -14,7 +14,7 @@ func Init(cfg *config.Config) error {
 	var err error
 
 	// setting logger
-	err = InitLogger(cfg.EnableDebug)
+	err = InitLogger(cfg.Debug)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err

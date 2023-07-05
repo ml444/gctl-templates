@@ -71,7 +71,7 @@ func init() {
 		DefaultConfig.GRPCAddr = addr
 	}
 	if DefaultConfig.DbDSN == "" {
-        DefaultConfig.DbDSN = os.Getenv(EnvServiceDbDSN)
+        DefaultConfig.DbDSN = os.Getenv(EnvKeyServiceDbDSN)
         if DefaultConfig.Debug {
             log.Info("DB:", DefaultConfig.DbDSN)
         }
