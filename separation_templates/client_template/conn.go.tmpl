@@ -23,7 +23,7 @@ func init() {
 	var err error
 
 	dns = os.Getenv(EnvKey{{ToUpperFirst .PackageName}}DNS)
-	if dsn == "" {
+	if dns == "" {
 		dns = "{{.PackageName}}.default.svc.cluster.local:5040"
 		//dns = "xds:///uuid.default.svc.cluster.local:5040"
 	}
