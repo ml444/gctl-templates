@@ -1,9 +1,0 @@
-package {{.PackageName}}
-
-{{$pn := .PackageName}}
-{{- range $i, $m := .ModelList -}}
-{{$TModelName := TrimPrefix $m.Name "Model" }}
-func (m *{{$m.Name}}) TableName() string {
-	return "{{$pn}}_{{ToSnakeCase $TModelName}}"
-}
-{{- end -}}

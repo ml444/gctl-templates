@@ -1,0 +1,91 @@
+#.go-cache:
+#    variables:
+#        GOPATH: $CI_PROJECT_DIR/.go
+#    cache:
+#        paths:
+#            - ./go/pkg/mod/
+
+# 预定义参数 https://docs.gitlab.cn/jh/ci/variables/predefined_variables.html
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+      variables:
+        DEBUG: "true"
+    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != ""
+      variables:
+        TAG_PREFIX: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - if: $CI_COMMIT_BRANCH != ""
+      variables:
+        TAG_PREFIX: $CI_COMMIT_BRANCH
+    - when: always
+
+
+stages:
+  - lint
+  - build
+  - push
+
+before_script:
+  - sudo docker info
+  - go version
+  - go env -w GO111MODULE=on
+  - go env -w GOPRIVATE="https://gitlab.itcom888.com"
+  - go env -w GONOSUMDB="gitlab.itcom888.com"
+  - go env -w GONOPROXY="gitlab.itcom888.com"
+  - go env -w GOINSECURE="gitlab.itcom888.com"
+  - go env -w GOPROXY="https://goproxy.cn,direct"
+  - go env -w GOMODCACHE="/home/gitlab-runner/go/pkg/mod/"
+
+golangci-lint:
+  #    image: golangci/golangci-lint:v1.49.0
+  stage: lint
+  tags:
+    - dev-shared
+  only:
+    refs:
+      - master
+      - test
+      - dev
+      - merge_requests
+  #    extends: .go-cache
+  allow_failure: true
+  script:
+    - go mod tidy
+    - GOGC=5 golangci-lint run -v
+
+docker-build:
+  stage: build
+  tags:
+    - dev-shared
+  only:
+    refs:
+      - master
+      - test
+      - dev
+      - merge_requests
+#    changes:
+#      - Dockerfile
+#      - /*.go$/
+  allow_failure: false
+  script:
+    - go mod tidy
+    - go mod vendor
+    - sudo docker build -t registry.cn-shenzhen.aliyuncs.com/spps/{{.PackageName}}server:${CI_COMMIT_REF_NAME} .
+
+
+docker-push:
+  stage: push
+  tags:
+    - dev-shared
+  only:
+    refs:
+      - master
+      - test
+      - dev
+      - merge_requests
+  when: on_success    # on_success,on_failure,always,manual,delayed,never
+  allow_failure: false
+  script:
+    - sudo docker login registry.cn-shenzhen.aliyuncs.com --username ${DOCKER_REGISTRY_USER} --password ${DOCKER_REGISTRY_PASSWORD}
+    - sudo docker push registry.cn-shenzhen.aliyuncs.com/spps/{{.PackageName}}server:${CI_COMMIT_REF_NAME}
+

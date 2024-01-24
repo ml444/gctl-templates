@@ -1,0 +1,112 @@
+package main
+
+import (
+	"context"
+	"net/http"
+	"net/http/pprof"
+	"time"
+
+	"github.com/ml444/gkit/errorx"
+	"github.com/ml444/gkit/log"
+	"github.com/ml444/gkit/pkg/env"
+	"github.com/ml444/gkit/transport/grpcx"
+
+	"{{.ModulePath}}/config"
+	"{{ .ModulePath }}/internal/hook"
+	"{{ .ModulePath }}/internal/middleware"
+	"{{.ServerImport}}"
+
+	"{{.ClientImport}}"
+)
+
+// Run starts a new http server, gRPC server, and a debug server with the
+// passed config and logger
+func Run(cfg *config.Config) {
+	var err error
+
+	// Mechanical domain.
+	errCh := make(chan error)
+
+	// Interrupt handler.
+	go hook.InterruptHandler(errCh)
+
+	// Debug pprof listener.
+    if pcfg := cfg.PProfCfg; pcfg != nil && pcfg.EnablePprof {
+		go func() {
+			log.Info("transport pprof addr", pcfg.PprofAddr)
+
+			m := http.NewServeMux()
+			m.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
+			m.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
+			m.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
+			m.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
+			m.Handle("/debug/pprof/trace", http.HandlerFunc(pprof.Trace))
+
+			errCh <- http.ListenAndServe(pcfg.PprofAddr, m)
+		}()
+	}
+
+	// HTTP transport.
+	if hcfg := cfg.HTTPCfg; hcfg != nil && hcfg.EnableHTTP {
+		go func() {
+			log.Info("transport HTTP addr", hcfg.HTTPAddr)
+			srv := httpx.NewServer(
+				httpx.Timeout(time.Duration(hcfg.Timeout)*time.Millisecond),
+				httpx.Address(hcfg.HTTPAddr),
+			)
+			{{.PackageName}}server.RegisterServerWithHTTP(srv)
+			ctx := context.Background()
+			if err = srv.Start(ctx); err != nil {
+				log.Error(err.Error())
+				errCh <- err
+				return
+			}		
+        }()
+	}
+
+	// gRPC transport.
+	var grpcServer *grpcx.Server
+	if gcfg := cfg.GrpcCfg; gcfg != nil && gcfg.EnableGRPC {
+		go func() {
+			log.Info("transport gRPC addr", gcfg.GRPCAddr)
+			grpcServer = grpcx.NewServer(
+				{{.PackageName}}server.RegisterServerWithGRPC,
+				grpcx.Name({{.PackageName}}.ClientName),
+				grpcx.Address(gcfg.GRPCAddr),
+				grpcx.UnaryInterceptor(middleware.InterceptorList...),
+				//grpcx.Credentials(insecure.NewCredentials()),
+			)
+			if env.IsLocalEnv() {
+				err = grpcServer.Start()
+				if err != nil {
+					log.Errorf("grpcServer.Start() err: %v", err)
+				}
+			} else {
+				errCh <- grpcServer.Start()
+			}
+
+		}()
+	}
+
+	// Run!
+	err = <-errCh
+	println("exit", err.Error())
+
+	_ = grpcServer.Stop()
+}
+
+func main() {
+	cfg := config.SetConfig(config.GlobalConfig)
+	errorx.RegisterError({{.PackageName}}.ErrCodeMap, {{.PackageName}}.ErrCode4StatusCodeMap)
+
+    // init
+	err := Init(cfg)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	// defer something. example: rpc connection\ db connection\ file...
+	defer Defer()
+
+	Run(cfg)
+}

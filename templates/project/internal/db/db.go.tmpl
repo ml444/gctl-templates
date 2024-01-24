@@ -1,0 +1,71 @@
+package db
+
+import (
+	"errors"
+	"time"
+
+	log "github.com/ml444/glog"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+
+	"{{.ModulePath}}/config"
+)
+
+var db *gorm.DB
+var migrateModelList []interface{}
+
+func DB() *gorm.DB {
+	return db
+}
+
+func InitDB(dbCfg *config.DBCfg, debug bool) error {
+	if dbCfg == nil {
+		return errors.New("dbCfg is nil")
+	}
+	var err error
+	//uri := "user:pass@tcp(127.0.0.1:3306)/agentserver?charset=utf8mb4&parseTime=True&loc=Local"
+	if dbCfg.DBURI == "" {
+		db, err = gorm.Open(sqlite.Open("{{.PackageName}}.db"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	} else if debug {
+		db, err = gorm.Open(mysql.Open(dbCfg.DBURI), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	} else {
+		db, err = gorm.Open(mysql.Open(dbCfg.DBURI), &gorm.Config{})
+	}
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	err = db.AutoMigrate(migrateModelList...)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
+	sqlDB.SetConnMaxLifetime(time.Second * time.Duration(dbCfg.ConnMaxLifeTime))
+	sqlDB.SetConnMaxIdleTime(time.Second * time.Duration(dbCfg.ConnMaxIdleTime))
+	sqlDB.SetMaxIdleConns(dbCfg.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(dbCfg.MaxOpenConns)
+	return nil
+}
+
+func CloseDB() error {
+	if db == nil {
+		return nil
+	}
+	if sqlDB, err := db.DB(); err == nil {
+		return sqlDB.Close()
+	} else {
+		println(err.Error())
+		return err
+	}
+}
+
+func RegisterModel(mList ...interface{}) {
+	migrateModelList = append(migrateModelList, mList...)
+}

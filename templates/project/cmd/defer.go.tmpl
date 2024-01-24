@@ -1,0 +1,27 @@
+package main
+
+import (
+	"github.com/ml444/gkit/log"
+	"{{.ModulePath}}/internal/db"
+)
+
+func Defer() {
+	CloseDbConns()
+	CloseRpcConns()
+}
+
+func CloseRpcConns() {
+	// err := uuid.CloseConn()
+	// if err != nil {
+	// 	log.Error(err)
+	// 	return
+	// }
+}
+
+func CloseDbConns() {
+	err := db.CloseDB()
+	if err != nil {
+	    log.Error(err)
+	    return
+	}
+}

@@ -1,0 +1,26 @@
+FROM golang:1.21.1-alpine AS build
+
+WORKDIR /app
+COPY . .
+
+#RUN go mod tidy
+
+# 判断 vendor 文件夹是否存在并执行 go mod tidy
+RUN if [ ! -d "vendor" ]; then \
+        go mod tidy; \
+    fi
+
+RUN go build -o {{.RootFolder}} -ldflags="-w -s" ./cmd
+
+FROM alpine:latest
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+      echo "Asia/Shanghai" > /etc/timezone
+
+WORKDIR /var/www/{{.RootFolder}}
+COPY --from=build /app/{{.RootFolder}} .
+
+EXPOSE 5040
+EXPOSE 5050
+EXPOSE 5060
+
+CMD ["./{{.RootFolder}}"]

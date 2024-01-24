@@ -1,0 +1,24 @@
+package {{.PackageName}}server
+
+import (
+	"github.com/ml444/gkit/transport/httpx"
+	"google.golang.org/grpc"
+
+	"{{.ClientImport}}"
+)
+
+{{$pn := .PackageName}}
+
+func RegisterServerWithHTTP(s *httpx.Server) {
+{{ range $i, $svc := .ServiceList }}
+	{{$pn}}.Register{{ToCamelCase $svc.ServiceName}}HTTPServer(s, New{{ToCamelCase $svc.ServiceName}}Service())
+{{end}}
+	// route := s.Route("/v1/agent")
+	// route.POST("/export", DownloadFile)
+}
+
+func RegisterServerWithGRPC(s grpc.ServiceRegistrar) {
+{{ range $i, $svc := .ServiceList }}
+	{{$pn}}.Register{{ToCamelCase $svc.ServiceName}}Server(s, New{{ToCamelCase $svc.ServiceName}}Service())
+{{end}}
+}

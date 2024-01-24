@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package {{ .PackageName }};
+
+option go_package = "{{ .GoPackage }}";
+
+import "validate/validate.proto";
+import "dbx/paging/paginate.proto";
+import "google/api/annotations.proto";
+
+{{ $caseServiceName := ToCamelCase .PackageName }}
+service {{ .PackageName }} {
+	rpc Create{{$caseServiceName}} (Create{{$caseServiceName}}Req) returns (Create{{$caseServiceName}}Rsp){
+	    option (google.api.http) = {
+	        post: "/v1/{{ .PackageName }}"
+	        body: "*"
+	    };
+	};
+	rpc Update{{$caseServiceName}} (Update{{$caseServiceName}}Req) returns (Update{{$caseServiceName}}Rsp){
+	    option (google.api.http) = {
+            put: "/v1/{{ .PackageName }}/Update{{$caseServiceName}}"
+            body: "*"
+        };
+	};
+	rpc Delete{{$caseServiceName}} (Delete{{$caseServiceName}}Req) returns (Delete{{$caseServiceName}}Rsp){
+	    option (google.api.http) = {
+            delete: "/v1/{{ .PackageName }}/{id}"
+        };
+	};
+	rpc Get{{$caseServiceName}} (Get{{$caseServiceName}}Req) returns (Get{{$caseServiceName}}Rsp){
+	    option (google.api.http) = {
+            get: "/v1/{{ .PackageName }}/{id}"
+        };
+	};
+	rpc List{{$caseServiceName}} (List{{$caseServiceName}}Req) returns (List{{$caseServiceName}}Rsp){
+	     option (google.api.http) = {
+            get: "/v1/{{ .PackageName }}"
+        };
+	};
+}
+
+// range of error codes: [{{.StartErrCode}}, {{.EndErrCode}}]
+enum ErrCode {
+	option (err.default_status) = 200;
+	option (err.default_message) = "success";
+
+    Success = 0;
+    ErrInvalidParam = {{.StartErrCode}} [(err.info)={status:400, message:"非法参数"}];
+    ErrParamRequired = {{Add .StartErrCode 1}} [(err.info)={status:400, message:"缺失参数"}];
+    ErrNotFound{{$caseServiceName}} = {{Add .StartErrCode 2}} [(err.info)={status:404, message:"未找到相关记录"}];
+}
+
+// GORM 索引使用示例: 
+// @gorm: type:json;index:idx_ct_xx,priority:1;comment:'xxxx'
+// @gorm: type:varchar(255);uniqueIndex:uidx_phone,sort:desc;comment:'phone number'
+// optional string phone = 17 [(orm.tags) = {type: "varchar(25)", unique_indexs: "uidx_phone", default: "", comment: "名称"}];
+
+
+message Model{{$caseServiceName}} {
+    option (orm.enable) = true;
+    option (orm.table_name) = "{{ .PackageName }}";
+
+    uint64 id = 1           [(orm.tags) = {primary_key: true, comment: "主键"}];
+    uint32 created_at = 101 [(orm.tags) = {comment: "创建时间"}];
+    uint32 updated_at = 102 [(orm.tags) = {comment: "更新时间"}];
+    uint32 deleted_at = 103 [(orm.tags) = {comment: "删除时间"}];
+    // string name = 2      [(orm.tags) = {type: "varchar(255)", indexs: ["idx_name,class:FULLTEXT", "idx_age_name,priority:2"], comment: "名称"}];
+    // uint32 age = 3       [(orm.tags) = {type: "int", indexs: ["idx_age_name,priority:1"], comment: "年龄"}];
+    // string phone = 4     [(orm.tags) = {type: "varchar(25)", unique_indexs: "uidx_phone", not_null: true, comment: "名称"}];
+}
+
+message Create{{$caseServiceName}}Req {
+    Model{{$caseServiceName}} data = 1 [(validate.rules).message.required = true];
+}
+message Create{{$caseServiceName}}Rsp {
+    Model{{$caseServiceName}} data = 1;
+}
+
+message Update{{$caseServiceName}}Req {
+    uint64 id = 1 [(validate.rules).uint64.gt = 0];
+    Model{{$caseServiceName}} data = 2 [(validate.rules).message.required = true];
+}
+message Update{{$caseServiceName}}Rsp {
+    Model{{$caseServiceName}} data = 1;
+}
+
+message Delete{{$caseServiceName}}Req {
+    uint64 id = 1 [(validate.rules).uint64.gte = 1];
+    // repeated uint64 id_list = 2 [(validate.rules).repeated.min_items = 1];
+}
+message Delete{{$caseServiceName}}Rsp {}
+
+message Get{{$caseServiceName}}Req {
+    uint64 id = 1 [(validate.rules).uint64.gt = 0];
+}
+message Get{{$caseServiceName}}Rsp {
+    Model{{$caseServiceName}} data = 1;
+}
+
+message List{{$caseServiceName}}Req {
+    repeated uint64 id_list = 1;
+    optional string name = 2;
+    paging.Paginate paginate = 3;
+}
+message List{{$caseServiceName}}Rsp {
+    paging.Paginate paginate = 1;
+    repeated Model{{$caseServiceName}} list = 2;
+}
+
+

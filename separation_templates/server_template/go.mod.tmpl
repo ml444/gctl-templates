@@ -1,9 +1,0 @@
-module {{ TrimPrefix .Options.go_package "./" }}Server
-
-go {{ .GoVersion }}
-
-replace (
-    //go.etcd.io/bbolt => github.com/coreos/bbolt v1.3.5
-	{{ TrimPrefix .Options.go_package "./" }} => ../{{.PackageName}}
-)
-
