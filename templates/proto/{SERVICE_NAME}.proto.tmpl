@@ -4,6 +4,8 @@ package {{ .PackageName }};
 
 option go_package = "{{ .GoPackage }}";
 
+import "err/err.proto";
+import "orm/orm.proto";
 import "validate/validate.proto";
 import "dbx/paging/paginate.proto";
 import "google/api/annotations.proto";
@@ -49,11 +51,6 @@ enum ErrCode {
     ErrParamRequired = {{Add .StartErrCode 1}} [(err.info)={status:400, message:"缺失参数"}];
     ErrNotFound{{$caseServiceName}} = {{Add .StartErrCode 2}} [(err.info)={status:404, message:"未找到相关记录"}];
 }
-
-// GORM 索引使用示例: 
-// @gorm: type:json;index:idx_ct_xx,priority:1;comment:'xxxx'
-// @gorm: type:varchar(255);uniqueIndex:uidx_phone,sort:desc;comment:'phone number'
-// optional string phone = 17 [(orm.tags) = {type: "varchar(25)", unique_indexs: "uidx_phone", default: "", comment: "名称"}];
 
 
 message Model{{$caseServiceName}} {

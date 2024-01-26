@@ -3,12 +3,12 @@ package {{.PackageName}}server
 import (
 "context"
 	"github.com/ml444/gkit/dbx"
-	"github.com/ml444/gkit/listoption"
-	log "github.com/ml444/glog"
+	"github.com/ml444/gkit/dbx/paging"
+	"github.com/ml444/gkit/log"
 	"gorm.io/gorm"
 
 	"{{.ClientImport}}"
-	"{{.ModulePath}}/internal/db"
+	"{{.GoModule}}/internal/db"
 )
 
 {{$pn := .PackageName}}
@@ -68,12 +68,12 @@ func (d *T{{$TModelName}}) GetOne(ctx context.Context, pk uint64) (*{{$cliModelN
 }
 {{$sModelName := ToLowerFirst $TModelName}}
 {{$reqType := Concat "List" $TModelName "Req"}}
-func (d *T{{$TModelName}}) ListWithPaginate(ctx context.Context, listOption *listoption.Paginate, whereOpts interface{}) ([]*{{$cliModelName}}, *listoption.Paginate, error) {
+func (d *T{{$TModelName}}) ListWithPaginate(ctx context.Context, listOption *paging.Paginate, whereOpts interface{}) ([]*{{$cliModelName}}, *paging.Paginate, error) {
 	var err error
 	scope := d.newScope().Where(whereOpts)
 	
     var {{$sModelName}}List []*{{$cliModelName}}
-	var paginate *listoption.Paginate
+	var paginate *paging.Paginate
 	paginate, err = scope.PaginateQuery(listOption, &{{$sModelName}}List )
 	if err != nil {
 		log.Errorf("err: %v", err)

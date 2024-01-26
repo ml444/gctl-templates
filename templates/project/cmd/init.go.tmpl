@@ -4,9 +4,9 @@ import (
     "github.com/ml444/gkit/log"
 	//"github.com/ml444/gkit/middleware/tracing"
 
-	"{{.ModulePath}}/internal/db"
-	"{{.ModulePath}}/pkg/{{.PackageName}}"
-	"{{.ModulePath}}/config"
+	"{{.GoModule}}/internal/db"
+	"{{.GoModule}}/pkg/{{.PackageName}}"
+	"{{.GoModule}}/config"
 )
 
 func Init(cfg *config.Config) error {
