@@ -22,3 +22,4 @@ func RegisterServerWithGRPC(s grpc.ServiceRegistrar) {
 	{{$pn}}.Register{{ToCamelCase $svc.ServiceName}}Server(s, New{{ToCamelCase $svc.ServiceName}}Service())
 {{end}}
 }
+

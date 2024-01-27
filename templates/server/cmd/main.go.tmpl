@@ -10,6 +10,7 @@ import (
 	"github.com/ml444/gkit/log"
 	"github.com/ml444/gkit/pkg/env"
 	"github.com/ml444/gkit/transport/grpcx"
+	"github.com/ml444/swaggerapi"
 
 	"{{ .GoModule }}/config"
 	"{{ .GoModule }}/internal/hook"
@@ -52,6 +53,9 @@ func Run(cfg *config.Config) {
 				httpx.Timeout(time.Duration(hcfg.Timeout)*time.Millisecond),
 				httpx.Address(hcfg.HTTPAddr),
 			)
+            if cfg.Debug {
+				swaggerapi.RegisterAPI(router)
+			}
 			{{.PackageName}}server.RegisterServerWithHTTP(srv)
 			ctx := context.Background()
 			if err = srv.Start(ctx); err != nil {
