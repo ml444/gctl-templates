@@ -10,17 +10,17 @@ RUN if [ ! -d "vendor" ]; then \
         go mod tidy; \
     fi
 
-RUN go build -o {{.RootFolder}} -ldflags="-w -s" ./cmd
+RUN go build -o {{.Name}} -ldflags="-w -s" ./cmd
 
 FROM alpine:latest
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
       echo "Asia/Shanghai" > /etc/timezone
 
-WORKDIR /var/www/{{.RootFolder}}
-COPY --from=build /app/{{.RootFolder}} .
+WORKDIR /var/www/{{.Name}}
+COPY --from=build /app/{{.Name}} .
 
 EXPOSE 5040
 EXPOSE 5050
 EXPOSE 5060
 
-CMD ["./{{.RootFolder}}"]
+CMD ["./{{.Name}}"]

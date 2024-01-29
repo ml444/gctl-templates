@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"{{.GoModule}}/config"
+	"{{ .GoModule }}/config"
 )
 
 var db *gorm.DB
@@ -24,10 +24,10 @@ func InitDB(dbCfg *config.DBCfg, debug bool) error {
 	if dbCfg == nil {
 		return errors.New("dbCfg is nil")
 	}
-	//uri := "user:pass@tcp(127.0.0.1:3306)/agentserver?charset=utf8mb4&parseTime=True&loc=Local"
+	//uri := "user:pass@tcp(127.0.0.1:3306)/{{.Name}}?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	if dbCfg.DBURI == "" {
-		db, err = gorm.Open(sqlite.Open("{{.PackageName}}.db"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+		db, err = gorm.Open(sqlite.Open("{{.Name}}.db"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	} else if debug {
 		db, err = gorm.Open(mysql.Open(dbCfg.DBURI), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	} else {

@@ -5,7 +5,6 @@ import (
 	//"github.com/ml444/gkit/middleware/tracing"
 
 	"{{.GoModule}}/internal/db"
-	"{{.GoModule}}/pkg/{{.PackageName}}"
 	"{{.GoModule}}/config"
 )
 
@@ -20,7 +19,7 @@ func Init(cfg *config.Config) error {
     }
 
 	// setting logger
-	err = log.InitLogger({{.PackageName}}.ClientName, cfg.Debug)
+	err = log.InitLogger("{{ .Name }}", cfg.Debug)
     if err != nil {
         log.Errorf("err: %v", err)
         return err

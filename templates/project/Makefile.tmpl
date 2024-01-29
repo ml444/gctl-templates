@@ -43,7 +43,7 @@ api:
 .PHONY: build
 # build
 build:
-	mkdir -p bin/ && go build -ldflags "-s -w -X main.Version=$(VERSION)" -o ./bin/{{.PackageName}}  ./...
+	mkdir -p bin/ && go build -ldflags "-s -w -X main.Version=$(VERSION)" -o ./bin/{{.Name}}  ./...
 
 .PHONY: generate
 # generate
