@@ -7,8 +7,8 @@ import (
 	"github.com/ml444/gkit/log"
 	"gorm.io/gorm"
 
-	"{{.ClientImport}}"
-	"{{.GoModule}}/internal/db"
+	"{{ GoModule . "client" }}"
+	"{{ GoModule . "server" }}/internal/db"
 )
 
 {{$pn := .PackageName}}

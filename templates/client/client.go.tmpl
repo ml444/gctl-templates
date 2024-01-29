@@ -7,7 +7,7 @@ import (
 )
 
 const ClientName = "{{.PackageName}}"
-const ModuleCode uint32 = {{.ModuleId}}
+const ModuleCode uint32 = {{ .ModuleID }}
 
 {{ range $i, $svc := .ServiceList }}
 {{ range $j, $v := $svc.RpcList }}

@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"{{ .GoModule }}/config"
+	"{{ GoModule . "server" }}/config"
 )
 
 var db *gorm.DB

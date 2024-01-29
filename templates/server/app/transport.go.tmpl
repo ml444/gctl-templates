@@ -4,7 +4,7 @@ import (
 	"github.com/ml444/gkit/transport/httpx"
 	"google.golang.org/grpc"
 
-	"{{.ClientImport}}"
+	"{{ GoModule . "client" }}"
 )
 
 {{$pn := .PackageName}}

@@ -12,9 +12,10 @@ import (
 	"github.com/ml444/gkit/transport/grpcx"
 	"github.com/ml444/swaggerapi"
 
-	"{{ .GoModule }}/config"
-	"{{ .GoModule }}/internal/hook"
-	"{{ .GoModule }}/internal/middleware"
+	"{{ GoModule . "client" }}"
+	"{{ GoModule . "server" }}/config"
+	"{{ GoModule . "server" }}/internal/hook"
+	"{{ GoModule . "server" }}/internal/middleware"
 
 )
 

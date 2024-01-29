@@ -11,7 +11,7 @@ target:
       - "{SERVICE_NAME}"
     server:
       - "services"
-      - "{SERVICE_NAME}"
+      - "{SERVICE_NAME}server"
 template:
   filesFormatSuffix: ".tmpl"
   protoFilename: "{SERVICE_NAME}.proto.tmpl"
