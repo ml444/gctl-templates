@@ -6,7 +6,7 @@ option go_package = "{{ .GoPackage }}";
 
 import "err/err.proto";
 import "orm/orm.proto";
-import "validate/validate.proto";
+import "v/v.proto";
 import "dbx/paging/paginate.proto";
 import "google/api/annotations.proto";
 
@@ -67,28 +67,28 @@ message Model{{$caseServiceName}} {
 }
 
 message Create{{$caseServiceName}}Req {
-    Model{{$caseServiceName}} data = 1 [(validate.rules).message.required = true];
+    Model{{$caseServiceName}} data = 1 [(v.rules).message.required = true];
 }
 message Create{{$caseServiceName}}Rsp {
     Model{{$caseServiceName}} data = 1;
 }
 
 message Update{{$caseServiceName}}Req {
-    uint64 id = 1 [(validate.rules).uint64.gt = 0];
-    Model{{$caseServiceName}} data = 2 [(validate.rules).message.required = true];
+    uint64 id = 1 [(v.rules).uint64.gt = 0];
+    Model{{$caseServiceName}} data = 2 [(v.rules).message.required = true];
 }
 message Update{{$caseServiceName}}Rsp {
     Model{{$caseServiceName}} data = 1;
 }
 
 message Delete{{$caseServiceName}}Req {
-    uint64 id = 1 [(validate.rules).uint64.gte = 1];
-    // repeated uint64 id_list = 2 [(validate.rules).repeated.min_items = 1];
+    uint64 id = 1 [(v.rules).uint64.gte = 1];
+    // repeated uint64 id_list = 2 [(v.rules).repeated.min_items = 1];
 }
 message Delete{{$caseServiceName}}Rsp {}
 
 message Get{{$caseServiceName}}Req {
-    uint64 id = 1 [(validate.rules).uint64.gt = 0];
+    uint64 id = 1 [(v.rules).uint64.gt = 0];
 }
 message Get{{$caseServiceName}}Rsp {
     Model{{$caseServiceName}} data = 1;
