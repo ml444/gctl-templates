@@ -20,7 +20,7 @@ service {{ .PackageName }} {
 	};
 	rpc Update{{$caseServiceName}} (Update{{$caseServiceName}}Req) returns (Update{{$caseServiceName}}Rsp){
 	    option (google.api.http) = {
-            put: "/v1/{{ .PackageName }}/Update{{$caseServiceName}}"
+            put: "/v1/{{ .PackageName }}"
             body: "*"
         };
 	};
@@ -53,11 +53,11 @@ enum ErrCode {
 }
 
 
-message Model{{$caseServiceName}} {
+message {{$caseServiceName}} {
     option (orm.enable) = true;
     option (orm.table_name) = "{{ .PackageName }}";
 
-    uint64 id = 1           [(orm.tags) = {primary_key: true, comment: "主键"}];
+    uint64 id = 1           [(orm.tags) = {comment: "主键", primary_key: true}];
     uint32 created_at = 101 [(orm.tags) = {comment: "创建时间"}];
     uint32 updated_at = 102 [(orm.tags) = {comment: "更新时间"}];
     uint32 deleted_at = 103 [(orm.tags) = {comment: "删除时间"}];

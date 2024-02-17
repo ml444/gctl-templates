@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/ml444/gkit/config"
 	"github.com/ml444/gkit/config/yaml"
+	"github.com/ml444/gkit/log"
 )
 
 type Config struct {
@@ -12,36 +13,7 @@ type Config struct {
 	GrpcCfg  *GrpcCfg  `yaml:"grpc_cfg"`
 	DBCfg    *DBCfg    `yaml:"db_cfg"`
 }
-type PProfCfg struct {
-	EnablePprof bool   `yaml:"enable_pprof" env:"name=ENABLE_PPROF" flag:"name=enable_pprof;default=false;usage=enable APIs for pprof"`
-	PprofAddr   string `yaml:"pprof_addr" env:"name=PPROF_ADDR" flag:"name=pprof_addr;default=:5040;usage=pprof listen address"`
-}
 
-type HTTPCfg struct {
-	EnableHTTP           bool   `yaml:"enable_http" env:"name=ENABLE_HTTP" flag:"name=enable_http;default=false;usage=enable APIs for http"`
-	HTTPAddr             string `yaml:"http_addr" env:"name=HTTP_ADDR" flag:"name=http_addr;default=:5050;usage=HTTP listen address"`
-	Timeout              int    `yaml:"timeout"`
-	TLSCertFile          string `yaml:"tls_cert_file"`
-	TLSKeyFile           string `yaml:"tls_key_file"`
-	RouterPathPrefix     string `yaml:"router_path_prefix"`
-	RouterStrictSlash    bool   `yaml:"router_strict_slash"`
-	RouterSkipClean      bool   `yaml:"router_skip_clean"`
-	RouterUseEncodedPath bool   `yaml:"router_use_encoded_path"`
-}
-type GrpcCfg struct {
-	EnableGRPC   bool   `yaml:"enable_grpc" env:"name=ENABLE_GRPC" flag:"name=enable_grpc;default=false;usage=enable APIs for grpc"`
-	EnableHealth bool   `yaml:"enable_health" env:"name=ENABLE_GRPC_HEALTH" flag:"name=enable_health;default=:5061;usage=enable APIs for grpc health"`
-	GRPCAddr     string `yaml:"grpc_addr" env:"name=GRPC_ADDR" flag:"name=grpc_addr;default=:5060;usage=gRPC listen address"`
-	TLSCertFile  string `yaml:"tls_cert_file"`
-	TLSKeyFile   string `yaml:"tls_key_file"`
-}
-type DBCfg struct {
-	DBURI           string `yaml:"db_uri" env:"name=SERVICE_DB_URI"`
-	ConnMaxLifeTime int    `yaml:"conn_max_life_time"` // 连接池中每个连接的最大生存时间，单位秒。
-	ConnMaxIdleTime int    `yaml:"conn_max_idle_time"` // 连接池中每个连接的最大空闲时间，单位秒。
-	MaxOpenConns    int    `yaml:"max_open_conns"`    // 连接池中允许同时打开的最大连接数
-	MaxIdleConns    int    `yaml:"max_idle_conns"`    // 连接池中允许存在的最大空闲连接数
-}
 
 var globalConfig *Config
 

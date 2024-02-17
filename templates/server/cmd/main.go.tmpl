@@ -56,7 +56,7 @@ func Run(cfg *config.Config) {
 				httpx.Address(hcfg.HTTPAddr),
 			)
             if cfg.Debug {
-				swaggerapi.RegisterAPI(router)
+				swaggerapi.RegisterAPI(srv.GetRouter())
 			}
 			app.RegisterServerWithHTTP(srv)
 			ctx := context.Background()

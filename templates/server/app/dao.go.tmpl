@@ -68,19 +68,19 @@ func (d *T{{$TModelName}}) GetOne(ctx context.Context, pk uint64) (*{{$cliModelN
 }
 {{$sModelName := ToLowerFirst $TModelName}}
 {{$reqType := Concat "List" $TModelName "Req"}}
-func (d *T{{$TModelName}}) ListWithPaginate(ctx context.Context, listOption *paging.Paginate, whereOpts interface{}) ([]*{{$cliModelName}}, *paging.Paginate, error) {
+func (d *T{{$TModelName}}) ListWithPaginate(ctx context.Context, paginate *paging.Paginate, opts *dbx.QueryOpts) ([]*{{$cliModelName}}, *paging.Paginate, error) {
 	var err error
-	scope := d.newScope().Where(whereOpts)
+	scope := d.newScope().Query(opts)
 	
     var {{$sModelName}}List []*{{$cliModelName}}
-	var paginate *paging.Paginate
-	paginate, err = scope.PaginateQuery(listOption, &{{$sModelName}}List )
+	var newPaginate *paging.Paginate
+	newPaginate, err = scope.PaginateQuery(paginate, &{{$sModelName}}List )
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return nil, nil, err
 	}
 
-	return {{$sModelName}}List , paginate, nil
+	return {{$sModelName}}List , newPaginate, nil
 }
 
 {{end}}
