@@ -14,7 +14,8 @@ import (
 	"github.com/ml444/swaggerapi"
 
 	"{{ GoModule . "client" }}"
-	"{{ GoModule . "server" }}/config"
+	"{{ GoModule . "server" }}/app"
+	"{{ GoModule . "server" }}/conf"
 	"{{ GoModule . "server" }}/internal/hook"
 	"{{ GoModule . "server" }}/internal/middleware"
 
@@ -22,7 +23,7 @@ import (
 
 // Run starts a new http server, gRPC server, and a debug server with the
 // passed config and logger
-func Run(cfg *config.Config) {
+func Run(cfg *conf.Config) {
 	var err error
 
 	// Mechanical domain.
@@ -100,9 +101,9 @@ func Run(cfg *config.Config) {
 }
 
 func main() {
-	errorx.RegisterError({{.PackageName}}.ErrCodeMap, {{.PackageName}}.ErrCode4StatusCodeMap)
+	errorx.RegisterError({{.PackageName}}.ErrCodeMap, &{{.PackageName}}.DefaultErrCode)
 
-	cfg := config.GetConfig()
+	cfg := conf.GetConfig()
 
     // init
 	err := Init(cfg)

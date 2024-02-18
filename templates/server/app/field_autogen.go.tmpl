@@ -10,6 +10,6 @@ const (
 // db field
 const (
 {{- range $i, $field := .ModelFieldList }}
-	db{{$field | ToCamelCase}} = "{{$field}}"
+	dbField{{$field | ToCamelCase}} = "{{$field}}"
 {{- end }}
 )

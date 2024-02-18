@@ -8,10 +8,10 @@ import (
 	//"github.com/ml444/gkit/middleware/tracing"
 
 	"{{ GoModule . "server" }}/internal/db"
-	"{{ GoModule . "server" }}/config"
+	"{{ GoModule . "server" }}/conf"
 )
 
-func Init(cfg *config.Config) error {
+func Init(cfg *conf.Config) error {
 	var err error
 
     // init config
@@ -22,18 +22,11 @@ func Init(cfg *config.Config) error {
     }
 
 	// setting logger
-    opts := []gconfig.OptionFunc{
-		gconfig.SetLoggerName("{{ .Name }}"),
-	}
-	if cfg.Debug {
-		opts = append(opts, gconfig.SetLevel2Logger(glevel.DebugLevel))
-	}
-	err = glog.InitLog(opts...)
+    err = InitLogger(cfg)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err
 	}
-	log.SetLogger(glog.GetLogger())
 
 	// init db
 	err = db.InitDB(cfg.DBCfg, cfg.Debug)
@@ -54,3 +47,23 @@ func Init(cfg *config.Config) error {
 	return nil
 }
 
+
+func InitLogger(cfg *conf.Config) error {
+	var err error
+
+	// setting logger
+	opts := []gconfig.OptionFunc{
+		gconfig.SetLoggerName("{{ .Name }}"),
+	}
+	if cfg.Debug {
+		opts = append(opts, gconfig.SetLevel2Logger(glevel.DebugLevel))
+	}
+	err = glog.InitLog(opts...)
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
+	log.SetLogger(glog.GetLogger())
+
+	return nil
+}
