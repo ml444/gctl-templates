@@ -7,7 +7,7 @@ import (
 )
 
 type CommonConfig struct {
-	Debug    bool      `yaml:"debug" env:"name=DEBUG" flag:"name=debug;default=true;usage=provide additional information or enable certain debugging"`
+	Debug    bool      `yaml:"debug" env:"name=DEBUG" flag:"name=debug;default=false;usage=provide additional information or enable certain debugging"`
 	PProfCfg *PProfCfg `yaml:"pprof_cfg"`
 	HTTPCfg  *HTTPCfg  `yaml:"http_cfg"`
 	GrpcCfg  *GrpcCfg  `yaml:"grpc_cfg"`
@@ -31,7 +31,7 @@ type HTTPCfg struct {
 }
 type GrpcCfg struct {
 	EnableGRPC   bool   `yaml:"enable_grpc" env:"name=ENABLE_GRPC" flag:"name=enable_grpc;default=false;usage=enable APIs for grpc"`
-	EnableHealth bool   `yaml:"enable_health" env:"name=ENABLE_GRPC_HEALTH" flag:"name=enable_health;default=:5061;usage=enable APIs for grpc health"`
+	EnableHealth bool   `yaml:"enable_health" env:"name=ENABLE_GRPC_HEALTH" flag:"name=enable_health;default=false;usage=enable APIs for grpc health"`
 	GRPCAddr     string `yaml:"grpc_addr" env:"name=GRPC_ADDR" flag:"name=grpc_addr;default=:5060;usage=gRPC listen address"`
 	TLSCertFile  string `yaml:"tls_cert_file"`
 	TLSKeyFile   string `yaml:"tls_key_file"`

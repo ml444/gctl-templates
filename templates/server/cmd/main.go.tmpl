@@ -97,7 +97,9 @@ func Run(cfg *conf.Config) {
 	err = <-errCh
 	println("exit", err.Error())
 
-	_ = grpcServer.Stop()
+	if grpcServer != nil {
+        _ = grpcServer.Stop()
+    }
 }
 
 func main() {

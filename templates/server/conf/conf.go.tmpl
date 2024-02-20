@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	config.CommonConfig
+	config.CommonConfig `yaml:",inline"`
 }
 
 
@@ -20,20 +20,28 @@ func GetConfig() *Config {
 }
 
 func InitConfig() error {
+	_, filename, _, ok := runtime.Caller(0)
+    if !ok {
+        return errors.New("failed to get current file path")
+    }
+    cfgPath := filepath.Join(filepath.Dir(filename), "conf.yaml")
 	c, err := gkitconfig.InitConfig(
 		&globalConfig,
-		gkitconfig.WithFilePath("conf/conf.yaml"),
+		gkitconfig.WithFilePath(cfgPath),
 		gkitconfig.WithFileLoader(yaml.NewLoader()),
 		//conf.WithEnvKeyPrefix("GKIT"),
 	)
+	if err != nil {
+		return err
+	}
 	if globalConfig.Debug {
 		_ = c.Walk(func(k string, v *gkitconfig.Value) error {
 			if v.FlagName() != "" {
-				log.Infof("conf: %s=%v", v.EnvName(), v.Value())
+				log.Infof("conf: %s=%v\n", v.EnvName(), v.Value())
 			} else if v.EnvName() != "" {
-				log.Infof("conf: %s=%v", v.FlagName(), v.Value())
+				log.Infof("conf: %s=%v\n", v.FlagName(), v.Value())
 			} else if v.FieldName() != "" {
-				log.Infof("conf: %s=%v", v.FieldName(), v.Value())
+				log.Infof("conf: %s=%v\n", v.FieldName(), v.Value())
 			}
 			return nil
 		})
