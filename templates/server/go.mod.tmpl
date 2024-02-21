@@ -2,6 +2,8 @@ module {{ GoModule . "server" }}
 
 go {{ .GoVersion }}
 
+replace {{ GoModule . "project" }} => ../..
+
 replace (
     //go.etcd.io/bbolt => github.com/coreos/bbolt v1.3.5
 )

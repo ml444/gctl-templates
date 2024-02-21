@@ -4,9 +4,9 @@ package {{ .PackageName }};
 
 option go_package = "{{ .GoPackage }}";
 
-import "err/err.proto";
+import "v.proto";
+import "err.proto";
 import "orm/orm.proto";
-import "v/v.proto";
 import "dbx/paging/paginate.proto";
 import "google/api/annotations.proto";
 

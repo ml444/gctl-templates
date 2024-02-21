@@ -1,11 +1,15 @@
 package conf
 
 import (
+	"errors"
+	"path/filepath"
+	"runtime"
+
 	gkitconfig "github.com/ml444/gkit/config"
 	"github.com/ml444/gkit/config/yaml"
 	"github.com/ml444/gkit/log"
 
-	"marko/config"
+	"{{ GoModule . "project" }}/config"
 )
 
 type Config struct {

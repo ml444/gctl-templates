@@ -104,15 +104,24 @@ func Run(cfg *conf.Config) {
 
 func main() {
 	errorx.RegisterError({{.PackageName}}.ErrCodeMap, &{{.PackageName}}.DefaultErrCode)
-
+	var err error
+    // init conf
+    err = conf.InitConfig()
+    if err != nil {
+        log.Errorf("err: %v", err)
+		println(err.Error())
+        return
+    }
 	cfg := conf.GetConfig()
 
     // init
-	err := Init(cfg)
+	err = Init(cfg)
 	if err != nil {
+        log.Errorf("err: %v", err)
 		println(err.Error())
 		return
 	}
+
 	// defer something. example: rpc connection\ db connection\ file...
 	defer Defer()
 
