@@ -62,9 +62,9 @@ message Model{{$caseServiceName}} {
     uint32 created_at = 101 [(orm.tags) = {comment: "创建时间"}];
     uint32 updated_at = 102 [(orm.tags) = {comment: "更新时间"}];
     uint32 deleted_at = 103 [(orm.tags) = {comment: "删除时间"}];
-    // string name = 2      [(orm.tags) = {type: "varchar(255)", indexs: ["idx_name,class:FULLTEXT", "idx_age_name,priority:2"], comment: "名称"}];
-    // uint32 age = 3       [(orm.tags) = {type: "int", indexs: ["idx_age_name,priority:1"], comment: "年龄"}];
-    // string phone = 4     [(orm.tags) = {type: "varchar(25)", unique_indexs: "uidx_phone", not_null: true, comment: "名称"}];
+    // string name = 2      [(orm.tags) = {comment: "名称", type: "varchar(255)", indexs: ["idx_name,class:FULLTEXT", "idx_age_name,priority:2"]}];
+    // uint32 age = 3       [(orm.tags) = {comment: "年龄", type: "int", indexs: ["idx_age_name,priority:1"]}];
+    // string phone = 4     [(orm.tags) = {comment: "手机", type: "varchar(25)", unique_indexs: "uidx_phone", not_null: true}];
 }
 
 message Create{{$caseServiceName}}Req {
