@@ -18,8 +18,8 @@ func RegisterServerWithHTTP(s *httpx.Server) {
 }
 
 func RegisterServerWithGRPC(s grpc.ServiceRegistrar) {
-{{ range $i, $svc := .ServiceList }}
+{{- range $i, $svc := .ServiceList }}
 	{{$pn}}.Register{{ToCamelCase $svc.ServiceName}}Server(s, New{{ToCamelCase $svc.ServiceName}}Service())
-{{end}}
+{{ end -}}
 }
 

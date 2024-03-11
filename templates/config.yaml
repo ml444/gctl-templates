@@ -5,12 +5,15 @@ target:
       - ""
     proto:
       - "pkg"
+      - "{GROUP_NAME}"
       - "{SERVICE_NAME}"
     client:
       - "pkg"
+      - "{GROUP_NAME}"
       - "{SERVICE_NAME}"
     server:
       - "services"
+      - "{GROUP_NAME}"
       - "{SERVICE_NAME}server"
 template:
   filesFormatSuffix: ".tmpl"

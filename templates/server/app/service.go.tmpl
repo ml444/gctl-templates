@@ -24,10 +24,9 @@ func New{{$sn}}Service() {{$sn}}Service {
 
 {{ range $j, $v := $svc.RpcList }}
 func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.RequestType}}) (*{{$pn}}.{{$v.ResponseType}}, error) {
-    var err error
 	var rsp {{$pn}}.{{$v.ResponseType}}
 	{{if HasPrefix $v.RequestType "Create"}}
-    {{$objName := TrimPrefix $v.Name "Create"}}
+    {{$objName := TrimSuffix (TrimPrefix $v.Name "Create") "Sys"}}
     m := req.Data
 	if m == nil {
 		log.Error("the req of Model is nil")
@@ -36,12 +35,13 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 
     // do something
 
-    err = db{{$objName}}.Create(ctx, m)
+    im, err := db{{$objName}}.Create(ctx, m)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
-    rsp.Data = m
+	log.Debugf("create {{$objName}}: %+v", im)
+    rsp.Data = im.(*{{$pn}}.Model{{$objName}})
     {{ else if HasPrefix $v.RequestType "Update"}}
     {{$objName := TrimPrefix $v.Name "Update"}}
     m := req.Data
@@ -49,8 +49,8 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 		log.Error("update request must have an Id")
 		return nil, errorx.New({{$pn}}.ErrParamRequired)
 	}
-	err = db{{$objName}}.Update(ctx, m,  map[string]interface{}{
-		"id":      m.Id,
+	err := db{{$objName}}.Update(ctx, m,  map[string]interface{}{
+		{{$pn}}.DbFieldId: m.Id,
 	})
 	if err != nil {
 		log.Errorf("err: %v", err)
@@ -59,8 +59,8 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 	rsp.Data = m
     {{ else if HasPrefix $v.RequestType "Delete"}}
     {{$objName := TrimPrefix $v.Name "Delete"}}
-    err = db{{$objName}}.DeleteByWhere(ctx, map[string]interface{}{
-        "id":      req.Id,
+    err := db{{$objName}}.DeleteByWhere(ctx, map[string]interface{}{
+        {{$pn}}.DbFieldId:      req.Id,
     })
 	if err != nil {
 		log.Error(err)
@@ -68,14 +68,14 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 	}
     {{ else if HasPrefix $v.RequestType "Get"}}
     {{$objName := TrimPrefix $v.Name "Get"}}
-    m, err := db{{$objName}}.GetOne(ctx, req.Id)
+    im, err := db{{$objName}}.GetOne(ctx, req.Id)
 	if err != nil {
 		log.Error(err)
         return nil, errorx.New({{$pn}}.ErrNotFound{{$objName}})
 	}
-    rsp.Data = m
+    rsp.Data = im.(*{{$pn}}.Model{{$objName}})
     {{ else if HasPrefix $v.RequestType "List"}}
-    {{$objName := TrimPrefix $v.Name "List"}}
+    {{$objName := TrimSuffix (TrimPrefix $v.Name "List") "Sys"}}
     queryOpts := make(map[string]interface{})
     // do something...
     list, paginate, err := db{{$objName}}.ListWithPaginate(ctx, req.Paginate, queryOpts)
@@ -84,7 +84,7 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 		return nil, err
 	}
 	rsp.Paginate = paginate
-	rsp.List = list
+	rsp.List = list.([]*{{$pn}}.Model{{$objName}})
     {{end}}
 	return &rsp, nil
 }

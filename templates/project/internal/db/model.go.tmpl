@@ -1,0 +1,150 @@
+package db
+
+import (
+	"context"
+	"reflect"
+
+	"github.com/ml444/gkit/cmd/protoc-gen-go-gorm/model"
+	"github.com/ml444/gkit/dbx"
+	"github.com/ml444/gkit/dbx/paging"
+	"gorm.io/gorm"
+)
+
+//var ErrInvalidListType = errorx.CreateError(400, errorx.ErrCodeInvalidParamSys, "invalid list type")
+
+type T struct {
+	getDB           func() *gorm.DB
+	model           interface{}
+	tModel          interface{}
+	NotFoundErrCode int32
+}
+
+func NewT(fn func() *gorm.DB, m interface{}, errCode int32) *T {
+	t := T{getDB: fn, NotFoundErrCode: errCode}
+	im, ok := (m).(model.IModel)
+	if ok {
+		t.model = im
+		t.tModel = im.ToORM()
+	} else {
+		t.model = m
+		t.tModel = m
+	}
+	return &t
+}
+
+func (x *T) CloneTModel() interface{} {
+	mT := reflect.TypeOf(x.tModel)
+	if mT.Kind() == reflect.Ptr {
+		return reflect.New(mT.Elem()).Interface()
+	}
+	return reflect.New(mT).Interface()
+}
+
+func (x *T) Scope() *dbx.Scope {
+	return dbx.NewScope(x.getDB(), x.CloneTModel())
+}
+
+func (x *T) Create(ctx context.Context, m interface{}) (interface{}, error) {
+	if im, ok := (m).(model.IModel); ok {
+		tm := im.ToORM()
+		err := x.Scope().Create(tm)
+		if err != nil {
+			return nil, err
+		}
+		m = tm.ToSource()
+		return m, nil
+	}
+	err := x.Scope().Create(m)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (x *T) Update(ctx context.Context, m interface{}, whereMap map[string]interface{}) error {
+	if im, ok := (m).(model.IModel); ok {
+		return x.Scope().Where(whereMap).Update(im.ToORM())
+	}
+	return x.Scope().Where(whereMap).Update(m)
+}
+
+func (x *T) DeleteById(ctx context.Context, pk uint64) error {
+	return x.Scope().Eq("id", pk).Delete()
+}
+
+func (x *T) DeleteByWhere(ctx context.Context, whereMap map[string]interface{}) error {
+	return x.Scope().Where(whereMap).Delete()
+}
+
+func (x *T) ExistByWhere(ctx context.Context, whereMap map[string]interface{}) (bool, error) {
+	count, err := x.Scope().Where(whereMap).Count()
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+func (x *T) GetOne(ctx context.Context, pk uint64) (interface{}, error) {
+	tm := x.CloneTModel()
+	err := x.Scope().SetNotFoundErr(x.NotFoundErrCode).Eq("id", pk).First(tm)
+	if res, ok := tm.(model.ITModel); ok {
+		return res.ToSource(), err
+	}
+	return tm, err
+}
+
+func (x *T) GetOneByWhere(ctx context.Context, whereMap map[string]interface{}) (interface{}, error) {
+	m := x.CloneTModel()
+	err := x.Scope().SetNotFoundErr(x.NotFoundErrCode).Where(whereMap).First(&m)
+	if err != nil {
+		return nil, err
+	}
+	if res, ok := m.(model.ITModel); ok {
+		return res.ToSource(), nil
+	}
+	return m, nil
+}
+func (x *T) ListWithPaginate(ctx context.Context, paginate *paging.Paginate, opts interface{}) (interface{}, *paging.Paginate, error) {
+	var err error
+	scope := x.Scope()
+	if opts != nil {
+		if query, ok := opts.(*dbx.QueryOpts); ok {
+			scope = scope.Query(query)
+		} else if where, ok := opts.(map[string]interface{}); ok && len(where) > 0 {
+			scope = scope.Where(where)
+		}
+	}
+	listType := reflect.SliceOf(reflect.TypeOf(x.tModel))
+	tList := reflect.New(listType)
+	var newPaginate *paging.Paginate
+	newPaginate, err = scope.PaginateQuery(paginate, tList.Interface())
+	if err != nil {
+		return nil, nil, err
+	}
+	result := reflect.New(reflect.SliceOf(reflect.TypeOf(x.model))).Elem()
+	for i := 0; i < tList.Elem().Len(); i++ {
+		result = reflect.Append(result, reflect.ValueOf(tList.Elem().Index(i).Interface().(model.ITModel).ToSource()))
+	}
+	return result.Interface(), newPaginate, nil
+}
+
+func (x *T) ListAll(ctx context.Context, opts interface{}) (interface{}, error) {
+	scope := x.Scope()
+	if opts != nil {
+		if query, ok := opts.(*dbx.QueryOpts); ok {
+			scope = scope.Query(query)
+		} else if where, ok := opts.(map[string]interface{}); ok && len(where) > 0 {
+			scope = scope.Where(where)
+		}
+	}
+	listType := reflect.SliceOf(reflect.TypeOf(x.tModel))
+	tList := reflect.New(listType)
+	err := scope.Find(tList.Interface())
+	if err != nil {
+		return nil, err
+	}
+	result := reflect.New(reflect.SliceOf(reflect.TypeOf(x.model))).Elem()
+	for i := 0; i < tList.Elem().Len(); i++ {
+		result = reflect.Append(result, reflect.ValueOf(tList.Elem().Index(i).Interface().(model.ITModel).ToSource()))
+	}
+	return result.Interface(), nil
+}

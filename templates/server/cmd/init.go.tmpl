@@ -7,19 +7,12 @@ import (
     glevel "github.com/ml444/glog/level"
 	//"github.com/ml444/gkit/middleware/tracing"
 
-	"{{ GoModule . "server" }}/internal/db"
+	"{{ GoModule . "project" }}/internal/db"
 	"{{ GoModule . "server" }}/conf"
 )
 
 func Init(cfg *conf.Config) error {
 	var err error
-
-    // init config
-    err = config.InitConfig()
-    if err != nil {
-        log.Errorf("err: %v", err)
-        return err
-    }
 
 	// setting logger
     err = InitLogger(cfg)

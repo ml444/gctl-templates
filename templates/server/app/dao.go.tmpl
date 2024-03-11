@@ -1,14 +1,8 @@
 package app
 
 import (
-"context"
-	"github.com/ml444/gkit/dbx"
-	"github.com/ml444/gkit/dbx/paging"
-	"github.com/ml444/gkit/log"
-	"gorm.io/gorm"
-
+	"{{ GoModule . "project" }}/internal/db"
 	"{{ GoModule . "client" }}"
-	"{{ GoModule . "server" }}/internal/db"
 )
 
 {{$pn := .PackageName}}
@@ -16,77 +10,13 @@ import (
 func init() {
 	db.RegisterModel(
 {{- range $i, $m := .ModelList -}}
-		&{{$pn}}.T{{$m.Name}}{},
+		&{{$pn}}.{{$m.Name}}{},
 {{- end -}}
 	)
 }
 
 {{ range $i, $m := .ModelList }}
-    {{$TModelName := TrimPrefix $m.Name "Model" }}
+    {{$name := TrimPrefix $m.Name "Model" }}
     {{$protoModelName := Concat $pn "." $m.Name}}
-    {{$gormModelName := Concat $pn ".T" $m.Name}}
-var db{{$TModelName}} = NewT{{$TModelName}}(db.DB())
-
-type T{{$TModelName}} struct {
-	model *{{$gormModelName}}
-}
-
-func NewT{{$TModelName}}(db *gorm.DB) *T{{$TModelName}} {
-	return &T{{$TModelName}}{
-		model: &{{$gormModelName}}{},
-	}
-}
-
-func (d *T{{$TModelName}}) newScope() *dbx.Scope {
-	return dbx.NewScope(db.DB(), &{{$gormModelName}}{})
-}
-
-func (d *T{{$TModelName}}) Create(ctx context.Context, m *{{$protoModelName}}) error {
-	return d.newScope().Create(m.ToORM())
-}
-
-func (d *T{{$TModelName}}) Update(ctx context.Context, m interface{}, whereMap map[string]interface{}) error {
-	return d.newScope().Where(whereMap).Update(&m)
-}
-
-func (d *T{{$TModelName}}) DeleteById(ctx context.Context, pk uint64) error {
-	return d.newScope().Eq(dbFieldId, pk).Delete()
-}
-
-func (d *T{{$TModelName}}) DeleteByWhere(ctx context.Context, whereMap map[string]interface{}) error {
-	return d.newScope().Where(whereMap).Delete()
-}
-
-func (d *T{{$TModelName}}) GetOne(ctx context.Context, pk uint64) (*{{$protoModelName}}, error) {
-	var m {{$gormModelName}}
-	err := d.newScope().SetNotFoundErr({{$pn}}.ErrNotFound{{$TModelName}}).First(&m, pk)
-	return m.ToSource(), err
-}
-{{$sModelName := ToLowerFirst $TModelName}}
-{{$reqType := Concat "List" $TModelName "Req"}}
-func (d *T{{$TModelName}}) ListWithPaginate(ctx context.Context, paginate *paging.Paginate, opts interface{}) ([]*{{$protoModelName}}, *paging.Paginate, error) {
-	var err error
-	scope := d.newScope()
-	if opts != nil {
-		if query, ok := opts.(*dbx.QueryOpts); ok {
-			scope = scope.Query(query)
-		} else if where, ok := opts.(map[string]interface{}); ok {
-			scope = scope.Where(where)
-		}
-	}
-
-    var {{$sModelName}}List []*{{$gormModelName}}
-	var newPaginate *paging.Paginate
-	newPaginate, err = scope.PaginateQuery(paginate, &{{$sModelName}}List )
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return nil, nil, err
-	}
-	var source{{$TModelName}}List []*{{$protoModelName}}
-	for _, m := range {{$sModelName}}List {
-		source{{$TModelName}}List = append(source{{$TModelName}}List, m.ToSource())
-	}
-	return source{{$TModelName}}List , newPaginate, nil
-}
-
+var db{{$name}} = db.NewT(db.DB, &{{$protoModelName}}{}, {{$pn}}.ErrNotFound{{$name}})
 {{end}}
