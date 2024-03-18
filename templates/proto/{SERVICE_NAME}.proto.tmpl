@@ -43,9 +43,8 @@ service {{ .PackageName }} {
 
 // range of error codes: [{{.StartErrCode}}, {{.EndErrCode}}]
 enum ErrCode {
-	option (err.default_status) = 200;
-	option (err.default_errcode) = {{.StartErrCode}};
-	option (err.default_message) = "success";
+	option (err.lower_bound) = {{.StartErrCode}};
+	option (err.upper_bound) = {{.EndErrCode}};
 
     Success = 0;
     ErrIllegalParam = {{.StartErrCode}} [(err.detail)={status:400, message:"非法参数", polyglot: ["zh=非法参数", "en=Illegal parameters"]}];
