@@ -103,7 +103,7 @@ func Run(cfg *conf.Config) {
 }
 
 func main() {
-	errorx.RegisterError({{.PackageName}}.ErrCodeMap, &{{.PackageName}}.DefaultErrCode)
+	errorx.RegisterError({{.PackageName}}.ErrCodeMap)
 	var err error
     // init conf
     err = conf.InitConfig()
