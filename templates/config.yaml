@@ -18,6 +18,7 @@ target:
 template:
   filesFormatSuffix: ".tmpl"
   protoFilename: "{SERVICE_NAME}.proto.tmpl"
+  serviceFileName: "service.go.tmpl"
   relativeDir:
     project:
       - "project"
