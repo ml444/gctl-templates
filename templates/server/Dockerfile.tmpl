@@ -13,8 +13,8 @@ RUN if [ ! -d "vendor" ]; then \
 RUN go build -o {{.Name}} -ldflags="-w -s" ./cmd
 
 FROM alpine:latest
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-      echo "Asia/Shanghai" > /etc/timezone
+# RUN apk add -U tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && apk del tzdata
+# RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
 
 WORKDIR /var/www/{{.Name}}
 COPY --from=build /app/{{.Name}} .

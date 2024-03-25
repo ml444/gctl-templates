@@ -1,0 +1,120 @@
+GOHOSTOS:=$(shell go env GOHOSTOS)
+GOPATH:=$(shell go env GOPATH)
+VERSION=$(shell git describe --tags --always)
+
+CI_ENVIRONMENT_NAME=dev
+CI_PROJECT_NAME={{.Name}}
+K8S_NAMESPACE=cc
+DEV_HTTPPROXY=http://172.1.1.2:13080
+
+ifeq ($(GOHOSTOS), windows)
+	#the `find.exe` is different from `find` in bash/shell.
+	#to see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/find.
+	#changed to use git-bash.exe to run find cli or other cli friendly, caused of every developer has a Git.
+	#Git_Bash= $(subst cmd\,bin\bash.exe,$(dir $(shell where git)))
+	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git | grep cmd))))
+	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find internal -name *.proto")
+	API_PROTO_FILES=$(shell $(Git_Bash) -c "find api -name *.proto")
+else
+	INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
+	API_PROTO_FILES=$(shell find pkg/api -name *.proto)
+endif
+
+.PHONY: syncvendor
+syncvendor:
+	# scp -r -P 37254 pzom@172.31.140.11:/data/data/bryce/zf/collect-waf/vendor/* ./vendor/
+	rsync -avz -e 'ssh -p 37254' pzom@172.31.140.14:/data/data/bryce/zf/esapi/vendor/ ./vendor/
+
+.PHONY: synclocal
+# from dev sync all files
+synclocal:
+	# scp -r -P 37254 pzom@172.31.140.11:/data/data/bryce/zf/collect-waf/vendor/* ./vendor/
+	rsync -avz -e 'ssh -p 37254' --exclude={'vendor','.git','.idea','go.mod'}  pzom@172.31.140.14:/data/data/bryce/zf/tracing-esapi/ ./
+
+.PHONY: syncdev
+# sync all files of  project to dev 
+syncdev:
+	# scp -r -P 37254 ./cmd ./config ./pkg ./server pzom@172.31.140.11:/data/data/bryce/zf/collect-waf/
+	rsync -avz -e 'ssh -p 37254' --exclude={'vendor','.git','.idea','go.mod'} ./ pzom@172.31.140.14:/data/data/bryce/zf/tracing-esapi/
+
+.PHONY: init
+# init env
+init:
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+.PHONY: config
+# generate internal proto
+config:
+	protoc --proto_path=./internal \
+	       --proto_path=./third_party \
+ 	       --go_out=paths=source_relative:./internal \
+	       $(INTERNAL_PROTO_FILES)
+
+.PHONY: api
+# generate api proto
+api:
+	protoc --proto_path=./pkg/api \
+	       --proto_path=${HOME}/github.com/ml444/gctl-templates/protos \
+		   -I=./pkg/api/ \
+ 	       --go_out=paths=source_relative:./pkg/api \
+ 	       --kratos-http_out=paths=source_relative:./pkg/api \
+ 	       --go-grpc_out=paths=source_relative:./pkg/api \
+ 	       --go-errcode_out=paths=source_relative:./pkg/api \
+ 	       --go-field_out=:. \
+ 	       --go-gorm_out=. \
+ 	       --go-validate_out=. \
+	       --openapi_out=fq_schema_naming=true,default_response=false:./pkg/api \
+	       $(API_PROTO_FILES)
+
+.PHONY: build
+# build
+build:
+	mkdir -p bin/ && go build -ldflags "-s -w -X main.Version=$(VERSION)" -o ./bin/wafcollector  ./...
+
+.PHONY: generate
+# generate
+generate:
+	go mod tidy
+	go get github.com/google/wire/cmd/wire@latest
+	go generate ./...
+
+.PHONY: all
+# generate all
+all:
+	make api;
+	make config;
+	make generate;
+
+.PHONY: docker
+# docker build and push
+docker:
+	docker build --build-arg http_proxy=${DEV_HTTPPROXY} --build-arg https_proxy=${DEV_HTTPPROXY} --build-arg BUILD_ENV=dev -t 172.31.140.12:8888/ywdev/tracing-esapi:dev .
+	docker push 172.31.140.12:8888/ywdev/tracing-esapi:dev
+
+.PHONY: deploy
+# deploy to dev
+deploy:
+	cd manifests/${CI_ENVIRONMENT_NAME} && \
+	sed -e "s/__CI_ENVIRONMENT_NAME__/${CI_ENVIRONMENT_NAME}/g; s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/g; s/__NAMESPACE__/${K8S_NAMESPACE}/g" deployment.yaml > deployment_dev.yaml && \
+	kubectl apply -f deployment_dev.yaml
+	
+
+# show help
+help:
+	@echo ''
+	@echo 'Usage:'
+	@echo ' make [target]'
+	@echo ''
+	@echo 'Targets:'
+	@awk '/^[a-zA-Z\-\_0-9]+:/ { \
+	helpMessage = match(lastLine, /^# (.*)/); \
+		if (helpMessage) { \
+			helpCommand = substr($$1, 0, index($$1, ":")-1); \
+			helpMessage = substr(lastLine, RSTART + 2, RLENGTH); \
+			printf "\033[36m%-22s\033[0m %s\n", helpCommand,helpMessage; \
+		} \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST)
+
+.DEFAULT_GOAL := help

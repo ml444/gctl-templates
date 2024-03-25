@@ -1,0 +1,83 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+    app.kubernetes.io/name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+    app.kubernetes.io/part-of: __NAMESPACE__-__CI_PROJECT_NAME__
+    app.kubernetes.io/version: "__VERSION__"
+  name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+  namespace: __NAMESPACE__
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+      app.kubernetes.io/name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+      app.kubernetes.io/part-of: __NAMESPACE__-__CI_PROJECT_NAME__
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+        app.kubernetes.io/name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+        app.kubernetes.io/part-of: __NAMESPACE__-__CI_PROJECT_NAME__
+        app.kubernetes.io/version: __VERSION__
+    spec:
+      containers:
+      - image: harbor.zfit888.com/ywdev/__CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__:__VERSION__
+        imagePullPolicy: Always
+        name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+        command:
+          - "./run"
+        ports:
+        - containerPort: 5050
+          name: http
+        - containerPort: 5040
+          name: grpc
+        # env:
+        #   - name: http_proxy
+        #     value: http://10.108.247.221:3128
+        #   - name: https_proxy
+        #     value: http://10.108.247.221:3128
+        #   - name: no_proxy
+        #     value: 10.108.0.0/16,127.0.0.1/32,localhost,local
+        volumeMounts:
+          - name: config-volume
+            mountPath: /app/server/{{.Name}}server/conf/conf.yaml
+            subPath: conf.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+            items:
+              - key: config.yaml
+                path: config.yaml
+                mode: 0755
+      restartPolicy: Always
+      nodeSelector:
+        kubernetes.io/os: linux
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: {}
+  labels:
+    app.kubernetes.io/component: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+    app.kubernetes.io/name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+    app.kubernetes.io/part-of: __NAMESPACE__-__CI_PROJECT_NAME__
+    app.kubernetes.io/version: __VERSION__
+  name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+  namespace: __NAMESPACE__
+spec:
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 5050
+  selector:
+    app.kubernetes.io/component: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+    app.kubernetes.io/name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+    app.kubernetes.io/part-of: __NAMESPACE__-__CI_PROJECT_NAME__
+

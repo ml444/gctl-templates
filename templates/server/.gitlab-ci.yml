@@ -1,0 +1,124 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  K8S_NAMESPACE: ywdev
+  IMAGE_LABELS: >
+    --label org.opencontainers.image.vendor=$CI_SERVER_URL/$GITLAB_USER_LOGIN
+    --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN
+    --label org.opencontainers.image.revision=$CI_COMMIT_SHA
+    --label org.opencontainers.image.source=$CI_PROJECT_URL
+    --label org.opencontainers.image.documentation=$CI_PROJECT_URL
+    --label org.opencontainers.image.licenses=$CI_PROJECT_URL
+    --label org.opencontainers.image.url=$CI_PROJECT_URL
+    --label vcs-url=$CI_PROJECT_URL
+    --label com.gitlab.ci.user=$CI_SERVER_URL/$GITLAB_USER_LOGIN
+    --label com.gitlab.ci.email=$GITLAB_USER_EMAIL
+    --label com.gitlab.ci.tagorbranch=$CI_COMMIT_BRANCH
+    --label com.gitlab.ci.pipelineurl=$CI_PIPELINE_URL
+    --label com.gitlab.ci.commiturl=$CI_PROJECT_URL/commit/$CI_COMMIT_SHA
+    --label com.gitlab.ci.cijoburl=$CI_JOB_URL
+    --label com.gitlab.ci.mrurl=$CI_PROJECT_URL/-/merge_requests/$CI_MERGE_REQUEST_ID
+
+build_with_kaniko:
+  stage: build
+  tags:
+    - main
+  only:
+    refs:
+      - main
+      - uat
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    entrypoint: [""]
+  script:
+    - |
+      echo "当前构建环境 ->>> $CI_COMMIT_BRANCH"
+
+      IMAGE_NAME=$HARBOR_HOST/$HARBOR_PROJECT/${CI_PROJECT_NAME}-$CI_COMMIT_BRANCH
+      echo "推送镜像名 ->>> $IMAGE_NAME"
+
+      BUILD_DATE="'$(date '+%FT%T%z' | sed -E -n 's/(\+[0-9]{2})([0-9]{2})$/\1:\2/p')'"
+      IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.created=$BUILD_DATE --label build-date=$BUILD_DATE"
+      echo "镜像构建时间 ->>> $BUILD_DATE"
+
+      BUILD_PROJECT=$(echo $CI_PROJECT_TITLE | tr " " "_")
+      IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.title=$BUILD_PROJECT --label org.opencontainers.image.description=$BUILD_PROJECT"
+      echo "当前构建代码项目名 ->>> $BUILD_PROJECT"
+
+      IMAGE_LABELS="$IMAGE_LABELS --label org.opencontainers.image.ref.name=$IMAGE_NAME:$CI_COMMIT_BRANCH"
+      echo "镜像推送地址以及标签 ->>> $IMAGE_NAME:$CI_COMMIT_BRANCH"
+
+      ADDITIONAL_TAG_LIST="$CI_COMMIT_BRANCH $CI_COMMIT_SHORT_SHA"
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]
+      then 
+          ADDITIONAL_TAG_LIST="$ADDITIONAL_TAG_LIST latest"
+      fi
+
+      if [[ -n "$ADDITIONAL_TAG_LIST" ]]
+      then 
+          for TAG in $ADDITIONAL_TAG_LIST
+          do 
+              FORMATTED_TAG_LIST="${FORMATTED_TAG_LIST} --tag $IMAGE_NAME:$TAG"
+          done
+      fi
+
+      FORMATTED_TAG_LIST=$(echo "${FORMATTED_TAG_LIST}" | sed s/\-\-tag/\-\-destination/g)
+      echo "镜像标签 ->>> $FORMATTED_TAG_LIST"
+
+      mkdir -p /kaniko/.docker
+      echo "{\"auths\":{\"$HARBOR_HOST\":{\"auth\":\"$(echo -n $HARBOR_USERNAME:$HARBOR_PASSWORD | base64)\"}}}" > /kaniko/.docker/config.json
+
+      if [[ "$CI_COMMIT_BRANCH" == main ]]
+      then
+          # http_proxy=http://10.108.247.221:3128
+          http_proxy=http://10.108.1.11:13080
+      else
+          http_proxy=http://172.31.1.22:13080
+      fi
+
+      echo "打包命令 ->>> /kaniko/executor --build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy  --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $FORMATTED_TAG_LIST $IMAGE_LABELS"
+      /kaniko/executor --build-arg http_proxy=$http_proxy --build-arg https_proxy=$http_proxy --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile $FORMATTED_TAG_LIST $IMAGE_LABELS
+
+      echo "镜像$IMAGE_NAME:$CI_COMMIT_BRANCH ->>> 推送镜像完成"
+
+deploy_dev:
+  stage: deploy
+  image: 
+    name: bitnami/kubectl:1.27.5
+    entrypoint: [""]
+  tags:
+    - main
+  only:
+    - main
+    - uat
+  environment:
+    name: uat
+  before_script:
+    - LANG=C.UTF-8
+  script:
+    - |
+      echo "输出K8S相关版本 ->>>"
+      kubectl version
+
+      echo "执行环境: ${CI_ENVIRONMENT_NAME}, 代码提交信息短SHA值: ${CI_COMMIT_SHORT_SHA}"
+
+      echo "进行到Deployment部署文件目录: manifests/${CI_ENVIRONMENT_NAME}"
+      cd manifests/${CI_ENVIRONMENT_NAME}
+      
+      echo "替换镜像版本号为代码提交短SHA值以及替换执行环境变量为当前代码提交环境 ->>>"
+      sed -i "s/__VERSION__/${CI_COMMIT_SHORT_SHA}/" deployment.yaml
+      sed -i "s/__CI_ENVIRONMENT_NAME__/${CI_ENVIRONMENT_NAME}/" deployment.yaml
+      sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
+      sed -i "s/__NAMESPACE__/${K8S_NAMESPACE}/" deployment.yaml
+
+      echo "输出POD的deployment配置 ->>>"
+      cat deployment.yaml
+
+      kubectl apply -f ./ 
+      echo "查看deployment的部署状态"
+      kubectl rollout status deployment ${CI_PROJECT_NAME}-${CI_ENVIRONMENT_NAME} -n ${K8S_NAMESPACE}
+
+      echo "获取部署的POD的信息"
+      kubectl get pod -l app.kubernetes.io/name=${CI_PROJECT_NAME}-${CI_ENVIRONMENT_NAME} -n ${K8S_NAMESPACE}

@@ -1,0 +1,29 @@
+version: '3'
+services:
+  # db:
+  #   container_name: local_mysql
+  #   image: mysql:latest
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: toor
+  #     MYSQL_ROOT_HOST: '%'
+  #   volumes:
+  #     - /data/mysql_data:/var/lib/mysql
+  #     - /data/mysql_data:/etc/mysql/conf.d
+  #   networks:
+  #     - local_default
+  web:
+    image: 172.31.140.12:8888/{{.Group}}/{{.Name}}:dev
+    network_mode: "host"
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./services/{{.Name}}server/conf/conf.yaml:/app/services/{{.Name}}server/conf/conf.yaml
+    # networks:
+    #   - local_default
+    # depends_on:
+    #   - db
+
+
+# networks:
+#   local_default:
+#     driver: bridge

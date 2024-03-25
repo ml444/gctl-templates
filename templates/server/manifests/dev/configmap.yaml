@@ -1,0 +1,69 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    debug: true
+    pprof_cfg:
+      enable_pprof: false
+      pprof_addr: ":5060"
+    http_cfg:
+      enable_http: true
+      http_addr: ":5050"
+      timeout: 2000   # 单位毫秒
+      tls_cert_file: ""
+      tls_key_file: ""
+      router_path_prefix: ""
+      router_strict_slash: true
+      router_skip_clean: false
+      router_use_encoded_path: false
+    grpc_cfg:
+      enable_grpc: false
+      enable_health: false
+      grpc_addr: ":5040"
+      tls_cert_file: ""
+      tls_key_file: ""
+    db_cfg:
+      db_uri: "root:JtwhqSHeHpoq8zaObUMl@tcp(mysql.db-dev.svc.cluster.local:3306)/xops-agent?charset=utf8&parseTime=True&loc=Local"
+      # 连接池中每个连接的最大生存时间，单位秒。
+      connmaxlifetime: 57600
+      # 连接池中每个连接的最大空闲时间，单位秒。
+      connmaxidletime: 7200
+      # 连接池中允许同时打开的最大连接数
+      maxopenconns: 100
+      # 连接池中允许存在的最大空闲连接数
+      maxidleconns: 10
+    # 日志配置
+    logger:
+      # 日志存放路径，当前目录的log文件夹
+      path: "."
+      # 日志打印等级，[debug, info, warn, err, off]
+      level: "debug"
+      # 最大存放时间，7天，超过7天的日志会删除
+      max_age: 7
+      # 日志分割时间，24小时，日志以1天为单位分割，一天一个文件
+      rotation_time: 24
+      # 是否打印日志
+      debug: true
+      # 是否存储日志
+      writefile: false
+    # Redis配置
+    redis:
+      # 模式。可选值：singleton、cluster
+      mode: singleton
+      # 地址（格式：$host:$port）
+      addrs:
+      - redis-master.dev.svc.cluster.local:6379
+      password: 123123qweqwe
+      pool:
+        poolsize: 10
+        minidleconns: 5
+
+
+kind: ConfigMap
+metadata:
+  labels:
+    ref: __CI_ENVIRONMENT_NAME__
+  name: __CI_PROJECT_NAME__-__CI_ENVIRONMENT_NAME__
+  namespace: __CI_PROJECT_NAMESPACE__
+
+
+
