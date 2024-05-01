@@ -4,42 +4,49 @@ package pluck;
 option go_package = "github.com/ml444/gkit/cmd/protoc-gen-go-http/pluck";
 
 
+//import "google/protobuf/descriptor.proto";
+//
+//extend google.protobuf.MessageOptions {
+//    optional RequestHeaders req_headers = 1301;
+//    optional ResponseHeaders rsp_headers = 1302;
+//}
+
 message RequestHeaders {
     // 用于指定客户端能够接收的内容类型
     // Accept: */*
     // Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-    string accept = 1;
+    optional string accept = 1;
 
     // 指定客户端能够接收的字符集
     // Accept-Charset: utf-8, iso-8859-1;q=0.5
-    string accept_charset = 2;
+    optional string accept_charset = 2;
 
     // 指定客户端能够接收的内容编码
     // Accept-Encoding: gzip, deflate, br
     // Accept-Encoding: gzip;q=1.0, deflate;q=0.8, *;q=0.1
-    string accept_encoding = 3;
+    optional string accept_encoding = 3;
 
     // 指定客户端能够接受的自然语言
     // Accept-Language: zh-CN,zh;q=0.9
     // Accept-Language: en-US,en;q=0.5
-    string accept_language = 4;
+    optional string accept_language = 4;
 
     //服务端通过响应头的Accept-Ranges字段标识自身支持范围请求，即可以从资源的特定位置开始上传或下载，常用于断点续传。
     // Accept-Ranges: bytes
     // Accept-Ranges: none
-    string accept_ranges = 5;
+    optional string accept_ranges = 5;
 
     // @CORS: 用于预检请求，客户端通过该字段告知服务端接下来要通过何种方法发起跨域请求
     // Access-Control-Request-Method: POST
-    string access_control_request_method = 6;
+    optional string access_control_request_method = 6;
     // @CORS: 同上，用于预检请求，客户端通过该字段告知服务端接下来的跨域请求会携带哪些请求头。
     // Access-Control-Request-Headers: User-Agent,Host,Origin
-    string access_control_request_headers = 7;
+    optional string access_control_request_headers = 7;
 
     // 用于验证客户端身份的凭证
     // Authorization: <type> <credentials>
     // Authorization: Basic eyJhbGciOiJIUzI1Nxxx5cCI6Ik.eyJ1aWQiOjEsInB2IjoxLCJpYXQiOxxx9.p1_qBiH2RKuSsEVKKQXF5xxxDCB7U
-    string authorization = 8;
+    optional string authorization = 8;
 
     // 资源缓存策略
     // Cache-Control: no-cache  // 数据内容可以被任意类型的缓存存储，但是每次使用前必须向源服务器进行验证。
@@ -52,32 +59,32 @@ message RequestHeaders {
     //                             那么客户端将认为它仍然可用。    
     // Cache-Control: min-fresh // 表明客户端希望所请求的数据在多少秒内必须是最新的，例如min-fresh=60，
     //                             表示客户端希望服务端的该资源在60秒内不应该变化。
-    string cache_control = 9;
+    optional string cache_control = 9;
 
     // 控制是否保持连接
     // Connection: keep-alive
     // Connection: close
-    string connection = 10;
+    optional string connection = 10;
 
     // 指示内容的长度（以字节为单位）
     // 较常见于响应头，不过请求头中也可以携带该参数，如果服务端强制要求客户端发送某个请求时携带该参数，
     // 而客户端没有携带，客户端就会收到一个`411（Length Required）`的报错。
     // Content-Length: 1038
-    string content_length = 11;
+    optional string content_length = 11;
 
     // 指定请求的内容类型
     // Content-Type: application/json
-    string content_type = 12;
+    optional string content_type = 12;
 
     // 包含客户端发送的 Cookie
     // 站点的Cookie，包含了一些简要的身份验证信息或其他重要信息。
     // 各个Cookie由分号加一个空格隔开，是一个字符串，每个cookie可以单独设置有效期，但查看cookie时不会输出有效期，如：
     // Cookie: PHPSESSID=298zf09hf012fh2; csrftoken=u32t4o3tb3gg43; _gat=1
-    string cookie = 13;
+    optional string cookie = 13;
 
     // 指定消息的发送时间
     // 消息被发出去的日期，可用于请求头或响应头。该日期不一定是完整的，可以只携带年月日时分秒的部分信息。
-    string date = 14;
+    optional string date = 14;
 
     // 指定服务器的行为期望
     // 该字段用于请求头，包含了客户端的一个期待条件，表示只有服务端满足此期待条件时才会继续请求。
@@ -90,20 +97,20 @@ message RequestHeaders {
     // 这里只是一个预检请求，Content-Length描述了文件的字节数，Expect表示期望收到状态码100，以继续发送该文件。,服务端可以有以下两种应答：
     // `100 continue`，即返回状态码100，表示同意客户端发送该文件。
     // `417 Expectation Failed`，服务端不允许发送该文件，此时请求失败。
-    string expect = 15;
+    optional string expect = 15;
 
     // 包含了客户端和代理之间的信息
-    string forwarded = 16;
+    optional string forwarded = 16;
 
     // 指定客户端的电子邮箱地址
     // 假如你在运行一个机器人代理程序（如爬虫程序），你可以在请求中携带From字段，
     // 这样当服务器收到一些异常的请求时，服务器的管理员可以通过这个邮箱地址联系到你。如：
     // From: webmaster@example.org
-    string from = 17;
+    optional string from = 17;
 
     // 指明了请求将要发送到的服务器的主机名和端口号，如果使用了默认的端口号，则端口号可以省略。如：
     // Host: developer.mozilla.org
-    string host = 18;
+    optional string host = 18;
 
     // 指定与资源相关的 ETag 值，用于条件请求
     // 该字段会携带一个或多个ETag，只有当服务端的资源与列表中的ETag匹配，才会执行操作。
@@ -115,7 +122,7 @@ message RequestHeaders {
     // 服务端会返回`416 (Range Not Satisfiable，范围请求无法满足)`响应。
     // 使用PUT一类的方法修改服务端资源时，它可以防止更新丢失。如果服务器上资源的ETag与If-Match的不匹配，
     // 说明该资源已经被修改过，直接提交修改可能导致这些更新丢失，所以服务端此时会返回`412 (Precondition Failed，先决条件失败)`响应。
-    string if_match = 19;
+    optional string if_match = 19;
 
     // 指定自指定日期/时间之后资源是否被修改
     // 如果目标资源在该字段指定的时间之后发生过修改，则返回该资源，否则返回304。例：
@@ -124,7 +131,7 @@ message RequestHeaders {
     // 客户端通过该字段询问服务端该资源在该时间后有没有发生过修改，如果发生了修改，
     // 说明缓存中的资源已经不是最新的，服务端需要返回最新的资源；否则返回304，这时客户端会从缓存中取该资源使用。
     // 该字段只能用于GET和HEAD，其他类型的请求不支持，如果同时还设置了`If-None-Match`，则`If-Modified-Since`会被忽略。
-    string if_modified_since = 20;
+    optional string if_modified_since = 20;
 
     // 指定与资源相关的 ETag 值，用于条件请求
     // 与If-Match相反，只有服务端资源的ETag与该字段不匹配，才会执行请求。
@@ -132,7 +139,7 @@ message RequestHeaders {
     // 1. 采用 GET 或 HEAD 方法，来更新拥有特定的ETag 属性值的缓存。
     // 2. 采用 PUT 方法时，可以确保之前没有进行过该上传操作（否则就会出现匹配的ETag），这也是更新丢失问题的一种。
     // If-None-Match: "c561c68d0ba92bbeb8b0fff2a9199f722e3a621a"
-    string if_none_match = 21;
+    optional string if_none_match = 21;
 
     // 指定资源的一部分
     // 设置范围下载的先决条件，即在什么情况下才可以启用范围下载，它可以决定Range字段在何种条件下起作用。
@@ -141,7 +148,7 @@ message RequestHeaders {
     // If-Range可以携带两类值，一类是资源上次被修改的时间（Last-Modified），一类是资源的ETag，但不能同时携带两个值。
     // 携带修改时间时，只有该时间之后资源没有发生变化，才算满足该条件；携带ETag时，需要与服务端该资源的ETag匹配，
     // 才算满足条件。本质上都是为了保证断点续传的每一段数据都来自同一个资源。
-    string if_range = 22;
+    optional string if_range = 22;
 
     // 指定自指定日期/时间之后资源是否未被修改
     // 与If-Modified-Since正好相反，只有资源在该字段指定的时间之后未修改，才算满足条件。
@@ -149,20 +156,20 @@ message RequestHeaders {
     // 1. 对于POST一类的非安全方法，可以优化并发控制，机制与防止更新丢失类似。
     //    比如多人同时编辑一份文档，一个人一旦提交后，其他人如果继续提交，就会覆盖之前的提交结果。
     // 2. 搭配If-Range使用，可以确保范围下载来自同一个未经修改的资源。
-    string if_unmodified_since = 23;
+    optional string if_unmodified_since = 23;
 
     // 指定请求可被转发的最大次数
     // 以十进制表示的请求可转发的最大服务器数目，每台服务器在进行转发时将该值减一，当值变为0时，该服务器将不能再向其他服务器转发。
-    string max_forwards = 24;
+    optional string max_forwards = 24;
 
     // 指定请求的来源
     // 发起跨域请求的页面所在的源服务器，对于任何有访问权限限制的请求，Origin字段都是必需的。
     // Origin: http://example.com
-    string origin = 25;
+    optional string origin = 25;
 
     // HTTP/1.0 指定报文的缓存行为
     // Deprecated
-    // string pragma = 24;
+    // optional string pragma = 24;
 
     // 指定范围响应的字节范围。
     // 范围下载一般需要进行先决条件判断，如`If-Match`、`If-Range`等，满足判断条件后，服务端会返回响应码`207（Partial Content）`，
@@ -172,7 +179,7 @@ message RequestHeaders {
     // unit一般是’bytes’，结束字节可省略，此时表示一直到文件末尾。
     // Range字段可以携带由逗号隔开的多个值，表示一次请求多个范围的内容，每部分内容是multipart类型。如：
     // Range: bytes=200-1000, 2000-6500, 8000-
-    string range = 26;
+    optional string range = 26;
 
     // 指定从哪个页面跳转而来
     // 在两种情况下Referer字段不会被保留：
@@ -184,7 +191,7 @@ message RequestHeaders {
     // 
     // Referer: https://developer.mozilla.org/testpage.html
     // Referer: https://www.baidu.com/
-    string referer = 27;
+    optional string referer = 27;
 
     // 指定传输编码的优先级
     // 请求方希望使用的传输编码类型。
@@ -193,7 +200,7 @@ message RequestHeaders {
     // TE字段支持的指令包括：compress、deflate、gzip、trailers，
     // 当存在多个值时，可以使用q参数定义权重。前三个都是常规的数据压缩方法，这里不再详述；
     // trailers表示客户端期望在采用分块传输编码的响应中添加一些额外的接收挂载字段。
-    string t_e = 28;
+    optional string t_e = 28;
 
     // 指定客户端希望使用的协议
     // 用于检测是否有其他版本的协议可用于通信，一般用来请求切换协议。
@@ -204,11 +211,11 @@ message RequestHeaders {
     // 来作用到更高级的服务器。如果服务端可以切换到指定的协议，就会返回状态码`101（Switching Protocols）`，并携带如下响应头：
     // Upgrade: TLS/1.0, HTTP/1.1; Connection:Upgrade
     // 这表示服务端正在切换到协议`TLS/1.0, HTTP/1.1`
-    string upgrade = 29;
+    optional string upgrade = 29;
 
     // 包含了用户代理的信息
     // User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0
-    string user_agent = 30;
+    optional string user_agent = 30;
 
     // 包含了请求经过的中间节点信息
     // 该字段是由代理服务器添加的一个通用头部，适用于正向代理和反向代理，
@@ -222,13 +229,13 @@ message RequestHeaders {
     // Via: 1.1 vegur
     // Via: HTTP/1.1 GWA
     // Via: 1.0 fred, 1.1 p.example.net
-    string Via = 31;
+    optional string Via = 31;
 
     // 包含了对消息的警告信息
     // 给出一组警告信息，每个警告信息包含：warn-code、warn-agent、warn-text、warn-date
     // Warning: 110 anderson/1.3.37 "Response is stale"
     // Warning: 112 - "cache down" "Wed, 21 Oct 2020 07:28:00 GMT"
-    string warning = 32;
+    optional string warning = 32;
 
 
 }
@@ -239,26 +246,26 @@ message ResponseHeaders {
 
     // @CORS: 是否允许客户端携带凭证信息，一般指Cookie。
     // Access-Control-Allow-Credentials: true
-    string access_control_allow_credentials = 1;
+    optional string access_control_allow_credentials = 1;
 
     // @CORS: 允许的请求头字段，客户端只能携带这里约定的请求头。
     // Access-Control-Allow-Headers: User-Agent,Host,Origin
-    string access_control_allow_headers = 2;
+    optional string access_control_allow_headers = 2;
 
     // @CORS: 允许的请求方法列表，如
     // Access-Control-Allow-Methods: GET,POST,PUT
-    string access_control_allow_methods = 3;
+    optional string access_control_allow_methods = 3;
 
     // @CORS: 允许哪些域可以跨域访问当前资源，不设置该字段则不允许跨域。
     // Access-Control-Allow-Origin: *
     // Access-Control-Allow-Origin: http://10.11.12.13
-    string access_control_allow_origin = 4;
+    optional string access_control_allow_origin = 4;
 
     // @CORS: Access-Control-Max-Age，缓存时间，单位是秒。
-    string access_control_max_age = 5;
+    optional string access_control_max_age = 5;
 
     // @CORS: Access-Control-Expose-Headers，指定客户端可见的响应头的白名单。
-    string access_control_expose_headers = 6;
+    optional string access_control_expose_headers = 6;
 
 
 
@@ -266,12 +273,12 @@ message ResponseHeaders {
     // 该值为0，表示该资源刚刚从服务端获取到。该值通常会被用来与Max-Age字段作比较，
     // 如果Age的值大于Max-Age，则表示该资源已失效，客户端将重新从服务端请求该资源。
     // Age: 3600
-    string age = 7;
+    optional string age = 7;
 
-    // 当服务端返回状态码`405 (Methods Not Allowed)`时，需要通过该字段告知客户端所支持的请求方法。  string allow = 8;
+    // 当服务端返回状态码`405 (Methods Not Allowed)`时，需要通过该字段告知客户端所支持的请求方法。  optional string allow = 8;
     // Allow: POST
     // Allow: GET,HEAD,PUT
-    string allow = 8;
+    optional string allow = 8;
     
     // 资源缓存策略
     // Cache-Control: no-cache  // 数据内容可以被任意类型的缓存存储，但是每次使用前必须向源服务器进行验证。
@@ -292,7 +299,7 @@ message ResponseHeaders {
     //                                             客户端会先临时使用该资源，再去验证它的有效性。
     // Cache-Control: stale-if-error            // 如果某个资源过期的时间没有超过这里设置的值，
     //                                             并且向服务端验证有效性的请求出错了，那么客户端将使用这个缓存资源。
-    string cache_control = 9;
+    optional string cache_control = 9;
 
     // Content-Disposition: inline
     // Content-Disposition: attachment
@@ -300,27 +307,27 @@ message ResponseHeaders {
     // Content-Disposition: form-data
     // Content-Disposition: form-data; name="fieldName"
     // Content-Disposition: form-data; name="fieldName"; filename="filename.jpg"
-    string content_disposition = 11;
+    optional string content_disposition = 11;
 
     // 指示内容的编码方式，它指示客户端该以何种格式来解码数据实体。
     // 该字段与客户端请求头中携带的Accept-Encoding是对应的，比如客户端发送请求时带了如下
     // 请求头： `Accept-Encoding: gzip,deflate`
     // 这表示客户端支持gzip和deflate两种数据压缩格式，此时服务端给出如下
     // 响应头：`Content-Encoding: gzip`
-    string content_encoding = 12;
+    optional string content_encoding = 12;
 
     // 指明当前页面的语言类型。
     // 它与客户端设置的Accept-Language也是对应的，
     // 但它主要是为了指明当前文档的目标用户，如中文用户，并不能保证文档的所有内容均为中文内容。
     // Content-Language: 
-    string content_language = 13;
+    optional string content_language = 13;
 
     // 指示内容的长度（以字节为单位）
     // Content-Length: 1038
-    string content_length = 14;
+    optional string content_length = 14;
 
     // 资源的位置
-    string content_location = 15;
+    optional string content_location = 15;
 
     // 该字段指明了当前内容在完整数据响应中的范围，通常以字节表示。
     // 比如客户端需要从服务端分段下载一个很大的资源文件，假设资源总字节数为67589个字节，
@@ -328,7 +335,7 @@ message ResponseHeaders {
     // Content-Range: bytes 200-1000/67589  // bytes（字节）是计量单位。
     // Content-Range: bytes 200-1000/*      // 如果不需要指明某部分的值，可以用星号代替
     // Content-Range: bytes */67589    
-    string content_range = 16;
+    optional string content_range = 16;
 
     // 内容安全策略字段。
     // 服务端通过该字段控制用户代理可以加载哪些资源，主要用于防止跨站点脚本攻击（XSS）。
@@ -367,7 +374,7 @@ message ResponseHeaders {
     //     content-src https:;
     //     script-src 'self' https://example.com/
     // 'self’关键字指代当前站点，而设置为’none’则可以禁止某类资源的加载。
-    string content_security_policy = 17;
+    optional string content_security_policy = 17;
 
     // 指示内容的类型和字符集
     // 指示服务端返回的MIME类型，帮助客户端正确解析资源。
@@ -375,11 +382,11 @@ message ResponseHeaders {
     // 而Content-Type描述服务端实际返回的资源类型。
     // 
     // Content-Type: application/json
-    string content_type = 18;
+    optional string content_type = 18;
 
     // 指示消息的发送时间
     // 消息被发出去的日期，可用于请求头或响应头。该日期不一定是完整的，可以只携带年月日时分秒的部分信息。
-    string date = 21;
+    optional string date = 21;
 
     // 指示资源的标识符
     // 资源的特定版本在服务端的标识符，可以理解为资源的版本id。
@@ -392,33 +399,33 @@ message ResponseHeaders {
     // 却会导致所有引入该资源的缓存失效，这也是ETag使用频率有所下降的一个原因。
     // 
     // Etag: "c561c68d0ba92bbeb8b0f612a9199f722e3a621a"
-    string e_tag = 22;
+    optional string e_tag = 22;
 
     // 指示响应过期的时间
     // Expires: Sat Nov 07 2020 23:00:00 GMT+0800
     // 表示该资源将在2020年11月7日晚十一点整失效。不过当客户端与服务端时间不同步时，使用该字段就会出现问题，
     // 因此现在主要是使用Max-Age来设置有效时间，由于使用的是相对值，所以它可以有效抵御时间不同步问题。
-    string expires = 23;
+    optional string expires = 23;
 
     // 控制是否保持连接
     // Connection: keep-alive
     // Connection: close
-    string connection = 24;
+    optional string connection = 24;
 
     // Keep-Alive: timeout=5, max=997
-    string keep_alive = 25;
+    optional string keep_alive = 25;
 
     // 指示资源的最后修改时间
     // 服务端通过该字段告诉客户端该资源上次被修改的时间，从而为If-Modified-Since和If-Unmodified-Since这两个字段提供依据。
     // Last-Modified: Mon, 18 Jul 2016 02:36:04 GMT
-    string last_modified = 26;
+    optional string last_modified = 26;
 
     // 指示重定向的位置
     // 指定重定向地址，一般用于响应头状态码为3xx时的重定向，另外，状态码为201时也会带Location字段，它指示创建的资源的地址。
     // `Location`与`Content-Location`不同，`Location`携带的是一个重定向的url地址（或新创建资源的地址），理论上不能保证还会不会发生新的重定向；
     // 而`Content-Location`携带的是经过内容协商后的实际资源地址，不会再进行进一步的内容协商。
     // 前者相当于把请求交给了其他处理者，而后者直接返回了数据实体的地址。
-    string location = 27;
+    optional string location = 27;
 
     // 用于响应头中，服务端通过该字段告知客户端需等待多久后才能重新访问服务器。
     // 该字段经常与状态码`503 (Service Unavailable，服务不可用)`或重定向类响应联合使用。
@@ -427,23 +434,23 @@ message ResponseHeaders {
     // 该字段支持两类值，一类是Date类型，一类是延迟的毫数。如：
     // Retry-After: Mon Nov 09 2020 23:00:00 GMT+0800 (中国标准时间)
     // Retry-After: 120
-    string retry_after = 28;
+    optional string retry_after = 28;
 
     // 指示服务器的软件信息
     // Server: Apache
     // Server: Apache/2.4.1
     // Server: Nginx
     // 一般来说，不应该将Server描述得过于详细，否则攻击者会更容易根据该Server的已知漏洞对站点发起攻击。
-    string server = 30;
+    optional string server = 30;
     
     // 设置响应中的 Cookie
     // Set-Cookie: mykey=myvalue; expires=Mon, 17-Jul-2017 16:06:00 GMT; Max-Age=31449600; Path=/; secure
-    string set_cookie = 31;
+    optional string set_cookie = 31;
 
     // 指定网站使用 HTTPS 的策略
     // 严格限定客户端只能使用https来访问服务器。客户端使用http访问服务器会被忽略。
     // 当客户端第一次以https请求服务器时，服务器就可以设置该值，随后客户端会根据这个参数，把所发起的任何http请求都默认设置成https。
-    string strict_transport_security = 32;
+    optional string strict_transport_security = 32;
 
     // 列出将在消息正文之后在尾部块中添加的额外元信息，通常是一些临时参数，如消息的完整性校验、消息的数字签名等。
     // 如果需要在响应中使用Trailer字段，则请求中的`TE`字段必须设置为`TE: trailer`。
@@ -455,20 +462,15 @@ message ResponseHeaders {
     // ...  // 数据实体
     // Expires: Wed, 21 Oct 2015 07:28:00 GMT\r\n
     // \r\n
-    string trailer = 33;
+    optional string trailer = 33;
 
     // 指明了消息实体所使用的编码格式，不同于Content-Encoding，Transfer-Encoding面向的是两个节点之间的消息传递。
     // 如果以TCP/IP协议的层级作类比，那么Content-Encoding相当于TCP级别的，面向的是最终用户；
     // 而Transfer-Encoding相当于是IP级别的，面向的是各个中间设备。
     // 这种设计使得系统中的异构设备可以共同工作，对系统的扩展是极为有利的。
-    string transfer_encoding = 34;
+    optional string transfer_encoding = 34;
 
     // 指示使用哪些条件来判断响应的缓存
     // Vary: Cookie, Accept-Encoding
-    string vary = 35;
-
-    // 指定客户端应该如何对服务器进行身份验证
-    // WWW-Authenticate: Basic
-    // WWW-Authenticate: Basic realm="Access to the staging site"
-    string WWW_Authenticate = 36;
+    optional string vary = 35;
 }

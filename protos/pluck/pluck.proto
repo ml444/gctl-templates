@@ -4,6 +4,7 @@ package pluck;
 option go_package = "github.com/ml444/gkit/cmd/protoc-gen-go-http/pluck";
 
 import "google/protobuf/descriptor.proto";
+import "pluck/headers.proto";
 
 extend google.protobuf.MethodOptions {
     // option (pluck.request) = {
@@ -60,13 +61,15 @@ extend google.protobuf.MethodOptions {
 
 
 message PluckRequest {
-    string headers_to = 1;
-    string body_to = 2;
+    RequestHeaders default_headers = 1;
+    string headers_to = 2;
+    string body_to = 3;
 }
 
 message PluckResponse {
-    string headers_from = 1;
-    string body_from = 2;
+    ResponseHeaders default_headers = 1;
+    string headers_from = 2;
+    string body_from = 3;
 }
 
 
