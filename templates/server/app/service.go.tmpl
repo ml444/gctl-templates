@@ -28,20 +28,20 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 	{{if HasPrefix $v.RequestType "Create"}}
     {{$objName := TrimSuffix (TrimPrefix $v.Name "Create") "Sys"}}
     m := req.Data
-	if m == nil {
-		log.Error("the req of Model is nil")
-        return nil, errorx.New({{$pn}}.ErrParamRequired)
-	}
+{{/*	if m == nil {*/}}
+{{/*		log.Error("the req of Model is nil")*/}}
+{{/*        return nil, errorx.New({{$pn}}.ErrParamRequired)*/}}
+{{/*	}*/}}
 
     // do something
 
-    im, err := db{{$objName}}.Create(ctx, m)
+    err := db{{$objName}}.Create(m)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
-	log.Debugf("create {{$objName}}: %+v", im)
-    rsp.Data = im.(*{{$pn}}.Model{{$objName}})
+	log.Debugf("create {{$objName}}: %+v", m)
+    rsp.Data = m
     {{ else if HasPrefix $v.RequestType "Update"}}
     {{$objName := TrimPrefix $v.Name "Update"}}
     m := req.Data
@@ -49,7 +49,7 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 		log.Error("update request must have an Id")
 		return nil, errorx.New({{$pn}}.ErrParamRequired)
 	}
-	err := db{{$objName}}.Update(ctx, m,  map[string]interface{}{
+	err := db{{$objName}}.Update(m, map[string]interface{}{
 		{{$pn}}.DbFieldId: m.Id,
 	})
 	if err != nil {
@@ -59,7 +59,7 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 	rsp.Data = m
     {{ else if HasPrefix $v.RequestType "Delete"}}
     {{$objName := TrimPrefix $v.Name "Delete"}}
-    err := db{{$objName}}.DeleteByWhere(ctx, map[string]interface{}{
+    err := db{{$objName}}.DeleteByWhere(map[string]interface{}{
         {{$pn}}.DbFieldId:      req.Id,
     })
 	if err != nil {
@@ -68,7 +68,7 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 	}
     {{ else if HasPrefix $v.RequestType "Get"}}
     {{$objName := TrimPrefix $v.Name "Get"}}
-    im, err := db{{$objName}}.GetOne(ctx, req.Id)
+    im, err := db{{$objName}}.GetOne(req.Id)
 	if err != nil {
 		log.Error(err)
         return nil, errorx.New({{$pn}}.ErrNotFound{{$objName}})
@@ -78,7 +78,7 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
     {{$objName := TrimSuffix (TrimPrefix $v.Name "List") "Sys"}}
     queryOpts := make(map[string]interface{})
     // do something...
-    list, paginate, err := db{{$objName}}.ListWithPaginate(ctx, req.Paginate, queryOpts)
+    list, paginate, err := db{{$objName}}.ListWithPaginate(req.Paginate, queryOpts)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return nil, err
