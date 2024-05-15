@@ -33,6 +33,7 @@ extend google.protobuf.FieldOptions {
 // FieldRules encapsulates the rules for each type of field. Depending on the
 // field, the correct set should be used to ensure proper validations.
 message FieldRules {
+    optional int32 errcode = 44;
     optional MessageRules message = 17;
     oneof type {
         // Scalar Field Types
