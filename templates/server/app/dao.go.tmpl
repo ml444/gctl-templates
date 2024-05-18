@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/ml444/gkit/dbx"
+
 	"{{ GoModule . "project" }}/internal/db"
 	"{{ GoModule . "client" }}"
 )
@@ -9,7 +11,7 @@ import (
 {{ $listOptionMap := .ListOptionMap }}
 func init() {
 	db.RegisterModel(
-{{- range $i, $m := .ModelList -}}
+{{- range $i, $m := .ModelList }}
 		&{{$pn}}.{{$m.Name}}{},
 {{- end -}}
 	)
@@ -18,5 +20,5 @@ func init() {
 {{ range $i, $m := .ModelList }}
     {{$name := TrimPrefix $m.Name "Model" }}
     {{$protoModelName := Concat $pn "." $m.Name}}
-var db{{$name}} = db.NewT(db.DB, &{{$protoModelName}}{}, {{$pn}}.ErrNotFound{{$name}})
+var db{{$name}} = dbx.NewT(db.DB, &{{$protoModelName}}{}, {{$pn}}.ErrNotFound{{$name}})
 {{end}}
