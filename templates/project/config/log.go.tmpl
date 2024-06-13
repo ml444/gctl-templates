@@ -1,0 +1,26 @@
+package config
+
+import (
+	"github.com/ml444/gkit/log"
+	glog "github.com/ml444/glog"
+)
+
+func InitLogger(cfg CommonConfig, loggerName string) error {
+	var err error
+
+	// setting logger
+	opts := []glog.OptionFunc{
+		glog.SetLoggerName(loggerName),
+	}
+	if cfg.Debug {
+		opts = append(opts, glog.SetLoggerLevel(glog.DebugLevel))
+	}
+	err = glog.InitLog(opts...)
+	if err != nil {
+		log.Errorf("err: %v", err)
+		return err
+	}
+	log.SetLogger(glog.GetLogger())
+
+	return nil
+}

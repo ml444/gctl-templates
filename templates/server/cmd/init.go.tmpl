@@ -3,10 +3,9 @@ package main
 import (
     "github.com/ml444/gkit/log"
     glog "github.com/ml444/glog"
-	gconfig "github.com/ml444/glog/config"
-    glevel "github.com/ml444/glog/level"
 	//"github.com/ml444/gkit/middleware/tracing"
 
+	"{{ GoModule . "project" }}/config"
 	"{{ GoModule . "project" }}/internal/db"
 	"{{ GoModule . "server" }}/conf"
 )
@@ -15,7 +14,7 @@ func Init(cfg *conf.Config) error {
 	var err error
 
 	// setting logger
-    err = InitLogger(cfg)
+    err = config.InitLogger(cfg.CommonConfig, "{{.Name}}")
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return err
@@ -39,22 +38,4 @@ func Init(cfg *conf.Config) error {
 }
 
 
-func InitLogger(cfg *conf.Config) error {
-	var err error
 
-	// setting logger
-	opts := []gconfig.OptionFunc{
-		gconfig.SetLoggerName("{{ .Name }}"),
-	}
-	if cfg.Debug {
-		opts = append(opts, gconfig.SetLevel2Logger(glevel.DebugLevel))
-	}
-	err = glog.InitLog(opts...)
-	if err != nil {
-		log.Errorf("err: %v", err)
-		return err
-	}
-	log.SetLogger(glog.GetLogger())
-
-	return nil
-}
