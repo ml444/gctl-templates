@@ -2,17 +2,27 @@ package app
 
 import (
 	"github.com/ml444/gkit/transport/httpx"
-	"google.golang.org/grpc"
+    "github.com/ml444/swaggerapi"
+    "github.com/ml444/swaggerapi/generator"
+    "google.golang.org/grpc"
+    "{{ GoModule . "project" }}/config"
 
 	"{{ GoModule . "client" }}"
 )
 
 {{$pn := .PackageName}}
+{{$goPackage := .GoPackage}}
 
-func RegisterServerWithHTTP(s *httpx.Server) {
+func RegisterServerWithHTTP(s *httpx.Server, cfg *config.HTTPCfg) {
 {{- range $i, $svc := .ServiceList }}
 	{{$pn}}.Register{{ToCamelCase $svc.ServiceName}}HTTPServer(s, New{{ToCamelCase $svc.ServiceName}}Service())
 {{- end }}
+    if cfg.EnableSwagger {
+        swaggerapi.RegisterAPI(
+            s.GetRouter(),
+            generator.DescriptorFilePath("{{$pn}}.proto", "../../../{{$goPackage}}/{{$pn}}_pb.descriptor"),
+        )
+    }
 }
 
 func RegisterServerWithGRPC(s grpc.ServiceRegistrar) {

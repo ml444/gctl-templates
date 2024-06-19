@@ -28,6 +28,7 @@ type HTTPCfg struct {
 	RouterStrictSlash    bool   `yaml:"router_strict_slash"`
 	RouterSkipClean      bool   `yaml:"router_skip_clean"`
 	RouterUseEncodedPath bool   `yaml:"router_use_encoded_path"`
+	EnableSwagger        bool   `yaml:"enable_swagger"`
 }
 type GrpcCfg struct {
 	EnableGRPC   bool   `yaml:"enable_grpc" env:"name=ENABLE_GRPC" flag:"name=enable_grpc;default=false;usage=enable APIs for grpc"`

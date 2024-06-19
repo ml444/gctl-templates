@@ -7,18 +7,18 @@ import (
 	"{{ GoModule . "client" }}"
 )
 
-{{$pn := .PackageName}}
-{{ $listOptionMap := .ListOptionMap }}
+{{- $pn := .PackageName}}
+{{- $listOptionMap := .ListOptionMap }}
 func init() {
 	db.RegisterModel(
 {{- range $i, $m := .ModelList }}
 		&{{$pn}}.{{$m.Name}}{},
-{{- end -}}
+{{- end }}
 	)
 }
 
-{{ range $i, $m := .ModelList }}
-    {{$name := TrimPrefix $m.Name "Model" }}
-    {{$protoModelName := Concat $pn "." $m.Name}}
+{{- range $i, $m := .ModelList }}
+    {{- $name := TrimPrefix $m.Name "Model" }}
+    {{- $protoModelName := Concat $pn "." $m.Name}}
 var db{{$name}} = dbx.NewT(db.DB, &{{$protoModelName}}{}, {{$pn}}.ErrNotFound{{$name}})
-{{end}}
+{{- end }}
