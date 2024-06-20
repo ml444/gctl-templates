@@ -12,7 +12,7 @@ services:
   #   networks:
   #     - local_default
   web:
-    image: 172.31.140.12:8888/{{.Group}}/{{.Name}}:dev
+    image: 172.1.140.110:8888/{{.Group}}/{{.Name}}:dev
     network_mode: "host"
     ports:
       - "5050:5050"

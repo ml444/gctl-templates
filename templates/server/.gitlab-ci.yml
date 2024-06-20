@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  K8S_NAMESPACE: ywdev
+  K8S_NAMESPACE: marko
   IMAGE_LABELS: >
     --label org.opencontainers.image.vendor=$CI_SERVER_URL/$GITLAB_USER_LOGIN
     --label org.opencontainers.image.authors=$CI_SERVER_URL/$GITLAB_USER_LOGIN

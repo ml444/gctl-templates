@@ -23,19 +23,19 @@ endif
 .PHONY: syncvendor
 syncvendor:
 	# scp -r -P 37254 pzom@172.31.140.11:/data/data/bryce/zf/collect-waf/vendor/* ./vendor/
-	rsync -avz -e 'ssh -p 37254' pzom@172.31.140.14:/data/data/bryce/zf/esapi/vendor/ ./vendor/
+	rsync -avz -e 'ssh -p 37254' user@192.168.1.110:/data/data/bryce/zf/esapi/vendor/ ./vendor/
 
 .PHONY: synclocal
 # from dev sync all files
 synclocal:
 	# scp -r -P 37254 pzom@172.31.140.11:/data/data/bryce/zf/collect-waf/vendor/* ./vendor/
-	rsync -avz -e 'ssh -p 37254' --exclude={'vendor','.git','.idea','go.mod'}  pzom@172.31.140.14:/data/data/bryce/zf/tracing-esapi/ ./
+	rsync -avz -e 'ssh -p 37254' --exclude={'vendor','.git','.idea','go.mod'}  user@192.168.1.110:/data/data/bryce/zf/tracing-esapi/ ./
 
 .PHONY: syncdev
 # sync all files of  project to dev 
 syncdev:
 	# scp -r -P 37254 ./cmd ./config ./pkg ./server pzom@172.31.140.11:/data/data/bryce/zf/collect-waf/
-	rsync -avz -e 'ssh -p 37254' --exclude={'vendor','.git','.idea','go.mod'} ./ pzom@172.31.140.14:/data/data/bryce/zf/tracing-esapi/
+	rsync -avz -e 'ssh -p 37254' --exclude={'vendor','.git','.idea','go.mod'} ./ user@192.168.1.110:/data/data/bryce/zf/tracing-esapi/
 
 .PHONY: init
 # init env

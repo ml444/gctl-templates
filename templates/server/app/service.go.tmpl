@@ -68,23 +68,25 @@ func (s {{$sn}}Service) {{$v.Name}}(ctx context.Context, req *{{$pn}}.{{$v.Reque
 	}
     {{ else if HasPrefix $v.RequestType "Get"}}
     {{$objName := TrimPrefix $v.Name "Get"}}
-    im, err := db{{$objName}}.GetOne(req.Id)
+    var m {{$pn}}.Model{{$objName}}
+    err := db{{$objName}}.GetOne(req.Id, &m)
 	if err != nil {
 		log.Error(err)
         return nil, errorx.New({{$pn}}.ErrNotFound{{$objName}})
 	}
-    rsp.Data = im.(*{{$pn}}.Model{{$objName}})
+    rsp.Data = m
     {{ else if HasPrefix $v.RequestType "List"}}
     {{$objName := TrimSuffix (TrimPrefix $v.Name "List") "Sys"}}
     queryOpts := make(map[string]interface{})
     // do something...
-    list, paginate, err := db{{$objName}}.ListWithPaginate(req.Paginate, queryOpts)
+    var list []*{{$pn}}.Model{{$objName}}
+    paginate, err := db{{$objName}}.ListWithPagination(req.Paginate, queryOpts, &list)
 	if err != nil {
 		log.Errorf("err: %v", err)
 		return nil, err
 	}
 	rsp.Paginate = paginate
-	rsp.List = list.([]*{{$pn}}.Model{{$objName}})
+	rsp.List = list
     {{end}}
 	return &rsp, nil
 }
