@@ -7,7 +7,7 @@ option go_package = "{{ .GoPackage }}";
 import "v/v.proto";
 import "err/err.proto";
 import "orm/orm.proto";
-import "dbx/paging/paginate.proto";
+import "dbx/pagination/pagination.proto";
 import "google/api/annotations.proto";
 
 {{ $caseServiceName := ToCamelCase .PackageName }}
@@ -97,10 +97,10 @@ message Get{{$caseServiceName}}Rsp {
 message List{{$caseServiceName}}Req {
     repeated uint64 id_list = 1;
     optional string name = 2;
-    paging.Paginate paginate = 3;
+    pagination.Pagination paginate = 3;
 }
 message List{{$caseServiceName}}Rsp {
-    paging.Paginate paginate = 1;
+    pagination.Pagination paginate = 1;
     repeated Model{{$caseServiceName}} list = 2;
 }
 
