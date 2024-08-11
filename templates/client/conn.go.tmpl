@@ -59,8 +59,10 @@ func init() {
 {{$sn := ToCamelCase $svc.ServiceName}}
 type CliManager struct {
 	conn    *grpc.ClientConn
-    cli     {{$sn}}Client
 	initErr error
+{{ range $i, $svc := .ServiceList }}
+    {{$svc.ServiceName}}Cli     {{ToCamelCase $svc.ServiceName}}Client
+{{ end }}
 }
 
 func InjectConn(conn *grpc.ClientConn) {
@@ -68,7 +70,9 @@ func InjectConn(conn *grpc.ClientConn) {
 		return
 	}
 	cliMgr.conn = conn
-    cliMgr.cli = New{{$sn}}Client(conn)
+{{ range $i, $svc := .ServiceList }}
+    cliMgr.{{$svc.ServiceName}}Cli = New{{ToCamelCase $svc.ServiceName}}Client(conn)
+{{ end }}
 }
 
 func CloseConn() error {

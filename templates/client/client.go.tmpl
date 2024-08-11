@@ -3,11 +3,22 @@ package {{.PackageName}}
 import (
 	"context"
 
-	"github.com/ml444/gkit/pkg/header"
+	"google.golang.org/grpc/metadata"
 )
 
-const ClientName = "{{.PackageName}}"
-const ModuleCode uint32 = {{ .ModuleID }}
+const (
+	ClientName        = "{{.PackageName}}"
+	ModuleCode uint32 = 1
+)
+
+
+func TransportMDFromCtx(ctx context.Context) context.Context {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(ctx, md)
+	}
+	return ctx
+}
 
 {{ range $i, $svc := .ServiceList }}
 {{ range $j, $v := $svc.RpcList }}
@@ -15,8 +26,8 @@ func {{$v.Name}}(ctx context.Context, req *{{$v.RequestType}}) (*{{$v.ResponseTy
 	if cliMgr.conn == nil {
 		return nil, cliMgr.initErr
 	}
-	ctx = header.TransportMDFromCtx(ctx)
-    return cliMgr.cli.{{$v.Name}}(ctx, req)
+	ctx = TransportMDFromCtx(ctx)
+    return cliMgr.{{$svc.ServiceName}}Cli.{{$v.Name}}(ctx, req)
 }
 {{ end }}
 {{ end }}

@@ -71,12 +71,13 @@ func Run(cfg *conf.Config) {
 		go func() {
 			log.Info("transport gRPC addr", gcfg.GRPCAddr)
 			grpcServer = grpcx.NewServer(
-				app.RegisterServerWithGRPC,
+                grpcx.Debug(cfg.Debug),
 				grpcx.Name({{.PackageName}}.ClientName),
 				grpcx.Address(gcfg.GRPCAddr),
 				grpcx.UnaryInterceptor(middleware.InterceptorList...),
 				//grpcx.Credentials(insecure.NewCredentials()),
 			)
+			app.RegisterServerWithGRPC(grpcServer)
 			if env.IsLocalEnv() {
 				err = grpcServer.Start()
 				if err != nil {

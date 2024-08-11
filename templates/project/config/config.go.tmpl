@@ -38,7 +38,7 @@ type GrpcCfg struct {
 	TLSKeyFile   string `yaml:"tls_key_file"`
 }
 type DBCfg struct {
-	DBURI           string `yaml:"db_uri" env:"name=SERVICE_DB_URI"`
+	DSN           	string `yaml:"dsn" env:"name=SERVICE_DB_DSN"`
 	ConnMaxLifeTime int    `yaml:"conn_max_life_time"` // 连接池中每个连接的最大生存时间，单位秒。
 	ConnMaxIdleTime int    `yaml:"conn_max_idle_time"` // 连接池中每个连接的最大空闲时间，单位秒。
 	MaxOpenConns    int    `yaml:"max_open_conns"`    // 连接池中允许同时打开的最大连接数

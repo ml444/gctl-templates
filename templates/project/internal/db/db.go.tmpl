@@ -26,12 +26,12 @@ func InitDB(dbCfg *config.DBCfg, debug bool) error {
 	}
 	//uri := "user:pass@tcp(127.0.0.1:3306)/{{.Name}}?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
-	if dbCfg.DBURI == "" {
+	if dbCfg.DSN == "" {
 		db, err = gorm.Open(sqlite.Open("{{.Name}}.db"), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	} else if debug {
-		db, err = gorm.Open(mysql.Open(dbCfg.DBURI), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+		db, err = gorm.Open(mysql.Open(dbCfg.DSN), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	} else {
-		db, err = gorm.Open(mysql.Open(dbCfg.DBURI), &gorm.Config{})
+		db, err = gorm.Open(mysql.Open(dbCfg.DSN), &gorm.Config{})
 	}
 	if err != nil {
 		log.Error(err)
