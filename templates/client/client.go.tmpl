@@ -8,9 +8,8 @@ import (
 
 const (
 	ClientName        = "{{.PackageName}}"
-	ModuleCode uint32 = 1
+	ModuleCode uint32 = {{.ModuleID}}
 )
-
 
 func TransportMDFromCtx(ctx context.Context) context.Context {
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -20,12 +19,13 @@ func TransportMDFromCtx(ctx context.Context) context.Context {
 	return ctx
 }
 
-{{ range $i, $svc := .ServiceList }}
+{{- range $i, $svc := .ServiceList }}
 {{ range $j, $v := $svc.RpcList }}
 func {{$v.Name}}(ctx context.Context, req *{{$v.RequestType}}) (*{{$v.ResponseType}}, error) {
-	if cliMgr.conn == nil {
-		return nil, cliMgr.initErr
-	}
+	err := CheckConn()
+    if err != nil {
+        return nil, err
+    }
 	ctx = TransportMDFromCtx(ctx)
     return cliMgr.{{$svc.ServiceName}}Cli.{{$v.Name}}(ctx, req)
 }
